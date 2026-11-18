@@ -1,57 +1,148 @@
-# Kese — Gider Defteri
+<div align="center">
 
-Kişisel harcamalarını kategorilere ayırıp takip edebileceğin, tarayıcıda çalışan, tek dosyalık bir gider defteri uygulaması. Kurulum, derleme veya sunucu gerekmez.
+<img src="assets/banner.svg" alt="Kese: kişisel gider defteri" width="100%">
+
+<br>
+
+![Lisans: MIT](https://img.shields.io/badge/lisans-MIT-ff8f6b?style=flat-square&labelColor=10201c)
+![Tek dosya](https://img.shields.io/badge/tek%20dosya-HTML%20%2B%20CSS%20%2B%20JS-ff8f6b?style=flat-square&labelColor=10201c)
+![Dil](https://img.shields.io/badge/dil-6-ff8f6b?style=flat-square&labelColor=10201c)
+![Veri](https://img.shields.io/badge/veri-World%20Bank-ff8f6b?style=flat-square&labelColor=10201c)
+![Kurulum](https://img.shields.io/badge/kurulum-yok-ff8f6b?style=flat-square&labelColor=10201c)
+
+**Harcamalarını kategorilere ayır, bütçeni izle, ayları karşılaştır.**<br>
+Tarayıcıda çalışır, sunucu ve derleme gerekmez.
+
+[Özellikler](#özellikler) · [Hızlı başlangıç](#hızlı-başlangıç) · [Gelir sınıfı](#gelir-sınıfı-nasıl-hesaplanır) · [Gizlilik](#veriler-ve-gizlilik) · [Yol haritası](#yol-haritası)
+
+</div>
+
+---
 
 ## Özellikler
 
-- **Hesap sistemi:** kayıt ol / giriş yap. Kayıtta ülke, şehir, para birimi ve dil seçilir.
-- **Gider takibi:** tarih, tutar, açıklama, kategori, ödeme yöntemi ve not; düzenleme, silme, arama ve kategori filtresi.
-- **Kategoriler ve bütçe:** kendi kategorilerini renkle ekle, aylık bütçe koy; aşılınca uyarı gösterilir.
-- **Aylık özet:** toplam, gider sayısı, günlük ortalama, kategori dağılımı (halka grafik) ve son 6 ayın karşılaştırması.
-- **Gün gün takvim:** takvimde bir güne basınca o günün giderleri görünür.
-- **Ülkene göre gelir sınıfı:** Dünya Bankası verileriyle (yoksulluk sınırları, Gini, gelir payları) gelirinin ülkendeki yeri tahmini olarak gösterilir. 171 ülke için veri vardır.
-- **6 dil:** Türkçe, English, Deutsch, Français, Español, Русский. Ülke seçince dil önerilir.
-- **Tüm dünya para birimleri**, ülkeye göre otomatik seçim.
-- **CSV dışa aktarma** (Excel'de Türkçe karakterlerle açılır).
-- Hareketli açılış sayfası ve "kendin dene" gelir sınıfı aracı.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-## Çalıştırma
+### Gider takibi
+Tarih, tutar, açıklama, kategori, ödeme yöntemi ve not. Düzenle, sil, ara, kategoriye göre süz.
 
-`index.html` dosyasını çift tıklayıp tarayıcıda aç. Hepsi bu.
+### Kategoriler ve bütçe
+Kendi kategorilerini renkle ekle, aylık bütçe koy. Bütçe aşılınca kırmızı uyarı.
 
-İstersen yerel bir sunucuyla da açabilirsin:
+### Aylık özet
+Toplam, gider sayısı, günlük ortalama, en büyük kategori. Halka grafikle kategori dağılımı.
+
+</td>
+<td width="50%" valign="top">
+
+### Gün gün takvim
+Ayın her günü harcamaya göre renklenir. Bir güne basınca o günün giderleri açılır.
+
+### Ayları karşılaştır
+Son 6 ayın harcamaları yan yana.
+
+### Dışa aktarma
+Seçili ayı tek tıkla CSV olarak indir. Excel'de Türkçe karakterlerle açılır.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### Ülkeye göre gelir sınıfı
+Gelirini girince, ülkenin Dünya Bankası istatistiklerine göre nerede durduğunu dayanak rakamlarıyla birlikte görürsün. 171 ülke için veri var.
+
+</td>
+<td valign="top">
+
+### 6 dil, tüm para birimleri
+Türkçe, English, Deutsch, Français, Español, Русский. Ülke seçince dil önerilir. Dünyadaki para birimlerinden birini seçersin.
+
+</td>
+</tr>
+</table>
+
+Ayrıca hareketli bir açılış sayfası ve ülkeni seçip günlük gelirini kaydırarak sınıfını anında gördüğün **"Kendin dene"** aracı var.
+
+## Hızlı başlangıç
+
+```bash
+git clone https://github.com/fahriefe/kese.git
+cd kese
+```
+
+Sonra `index.html` dosyasına çift tıkla. Hepsi bu.
+
+İstersen yerel sunucuyla da açabilirsin:
 
 ```bash
 npx serve .
 ```
 
+İlk açılışta **Hesap oluştur** ile kayıt ol (ülke, şehir, para birimi seç), sonra gider eklemeye başla.
+
+## Gelir sınıfı nasıl hesaplanır
+
+<details>
+<summary>Yöntemi göster</summary>
+
+<br>
+
+Dünya Bankası'nın günlük gelire göre üç yoksulluk sınırı vardır (2021 satın alma gücü paritesiyle, kişi başı):
+
+| Sınır | Anlamı |
+| --- | --- |
+| günde 3,00 $ altı | Aşırı yoksul |
+| 3,00 – 4,20 $ | Yoksul |
+| 4,20 – 8,30 $ | Alt-orta gelir |
+| 8,30 $ üstü | Orta ve üzeri |
+
+Girdiğin aylık hane gelirini hane kişi sayısına bölüp, ülkenin satın alma gücü katsayısıyla günlük dolara çeviriyoruz. 8,30 $ üstündeki kısım Dünya Bankası'nda tek grup olduğu için Orta, Üst-orta ve Varlıklı ayrımını ülkenin **Gini katsayısı** ve 8,30 $ altındaki nüfus payına uydurduğumuz bir **log-normal model** ile tahmin ediyoruz (ilk %75 orta, %75–90 üst-orta, ilk %10 varlıklı).
+
+> [!WARNING]
+> Bu kaba bir tahmindir, kesin değildir. Üst sınıflar modelden gelir; yüksek enflasyonlu ülkelerde sapma olabilir. Kart her zaman dayanak istatistikleri ve bir uyarı notu gösterir.
+
+</details>
+
 ## Veriler ve gizlilik
 
-- Hesaplar ve giderler **yalnızca kendi tarayıcının `localStorage` alanında** saklanır. Sunucuya gönderilmez. Başka cihazda veya tarayıcıda hesap görünmez; tarayıcı verisini silersen kayıtlar da silinir.
-- Parolalar düz yazı olarak değil, PBKDF2 (SHA-256, 150.000 tur) ile özetlenerek saklanır. Bu, gerçek bir sunucu tabanlı kimlik doğrulamanın yerini tutmaz; aynı bilgisayarı kullanan biri tarayıcı verilerine erişebilir.
-- Sayfa şu dış kaynakları kullanır: Google Fonts (yazı tipleri) ve `countriesnow.space` (Türkiye dışındaki ülkelerin şehir listesi; yalnızca ülke bilgisi çekilir, kullanıcı verisi gönderilmez). İnternet yoksa şehir elle yazılabilir.
-- Gelir sınıfı için gömülü veriler: [World Bank Open Data](https://data.worldbank.org/) (CC BY 4.0). Sınıflandırma, log-normal bir modele dayanan **kaba bir tahmindir**, kesin değildir. Ülkelerin kapsama özeti [`veri/ulke_verileri.csv`](veri/ulke_verileri.csv) dosyasındadır.
+| Konu | Durum |
+| --- | --- |
+| **Hesaplar ve giderler** | Yalnızca kendi tarayıcının `localStorage` alanında. Sunucuya gönderilmez. |
+| **Parolalar** | Düz yazı olarak değil, PBKDF2 (SHA-256, 150.000 tur) ile özetlenerek saklanır. |
+| **Cihazlar arası** | Hesap başka cihazda veya tarayıcıda görünmez. Tarayıcı verisini silersen kayıtlar da silinir. |
+| **Dış kaynaklar** | Google Fonts (yazı tipleri) ve `countriesnow.space` (Türkiye dışı şehir listesi; yalnızca ülke bilgisi çekilir). |
+| **İstatistikler** | [World Bank Open Data](https://data.worldbank.org/), CC BY 4.0. Özet tablo: [`veri/ulke_verileri.csv`](veri/ulke_verileri.csv) |
 
-## Bilinen sınırlar
-
-- Çok cihazlı hesap yok (sunucu gerekir). Plan: Supabase gibi bir arka uca taşımak.
-- Çeviriler hızlı hazırlandı; ana dili olan biri gözden geçirmeli.
-- Şehir listesi Türkiye için tam (81 il), diğer ülkelerde dış servisten gelir ve eksik olabilir.
-- Gelir sınıfı hesabı için gelirin ülkenin kendi para biriminde girilmesi gerekir.
+> [!NOTE]
+> Bu, gerçek bir sunucu tabanlı kimlik doğrulamanın yerini tutmaz. Aynı bilgisayarı kullanan biri tarayıcı verilerine erişebilir.
 
 ## Proje yapısı
 
-```
-index.html        Uygulamanın tamamı (HTML + CSS + JS)
-veri/             Dünya Bankası verilerinin ülke bazlı özeti (CSV)
-PRODUCT.md        Ürün bağlamı (kullanıcılar, amaç, ilkeler)
-DESIGN.md         Tasarım sistemi notları
+```text
+kese/
+├── index.html            uygulamanın tamamı (HTML + CSS + JS)
+├── assets/               logo ve banner (SVG)
+├── veri/
+│   └── ulke_verileri.csv ülke bazlı Dünya Bankası veri özeti
+├── PRODUCT.md            ürün bağlamı: kullanıcılar, amaç, ilkeler
+├── DESIGN.md             tasarım sistemi notları
+└── LICENSE
 ```
 
-## Tasarım notu
+## Yol haritası
 
-Açılış sayfasının düzeni ve yazı stili [kesene.app](https://kesene.app/) sitesinden ilham alınarak farklı renklerle hazırlandı. Metinler, logo ve görseller bu projeye aittir; o siteden alınmamıştır. Kese ile Kesene ayrı ve ilgisiz projelerdir.
+- [x] Hesap sistemi, kategoriler, bütçe, aylık özet
+- [x] Ülkeye göre gelir sınıfı, 6 dil, para birimi seçimi
+- [x] Halka grafik ve gün gün takvim
+- [ ] Sunucu tabanlı hesaplar (ör. Supabase), cihazlar arası senkron
+- [ ] Parola sıfırlama, profil düzenleme (ülke / şehir / para birimi)
+- [ ] Tekrarlayan giderler ve hatırlatmalar
+- [ ] CSV içe aktarma
+- [ ] Çevirilerin ana dili olanlarca gözden geçirilmesi
 
 ## Lisans
 
-[MIT](LICENSE)
+[MIT](LICENSE) © 2026 fahriefe

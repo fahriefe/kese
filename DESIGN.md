@@ -152,7 +152,7 @@ components:
 
 **Creative North Star: "The Night Ledger Under Coral Light"**
 
-Kese is a personal expense book set on a deep green-black ground that carries a faint 64px grid and one soft coral glow from the top right, like a ledger page lit from a single lamp. Panels step lighter than the ground, controls and chrome are pills or softly rounded, and the one warm accent (coral) does all the calling to action. The language was chosen by the user as a "Kesene-style" direction; the build shows it consistently across the sign-in and app screens.
+Kese is a personal expense book set on a deep green-black ground that carries a faint 64px grid and one soft coral glow from the top right, like a ledger page lit from a single lamp. Panels step lighter than the ground, controls and chrome are pills or softly rounded, and the one warm accent (coral) does all the calling to action.
 
 The system has two surface worlds. The default is dark: ground, panel, raised. A `.light` scope flips the same custom properties to a pale mint paper with white fields and green-black ink; it is used where the user writes or decides (the sign-in card, the add-expense panel) and for the lead stat card. Because the scope reassigns tokens rather than restyling components, any component works in either.
 

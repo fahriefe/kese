@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="96" height="96" role="img" aria-label="Kese logosu">
+  <rect width="48" height="48" rx="14" fill="#ff8f6b"/>
+  <circle cx="24" cy="24" r="14" fill="none" stroke="#2a0f06" stroke-width="2.6"/>
+  <path d="M18.5 31v-5M24 31v-9M29.5 31v-13" stroke="#2a0f06" stroke-width="3.2" stroke-linecap="round"/>
+</svg>
