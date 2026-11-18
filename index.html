@@ -1,0 +1,1247 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kese - Gider Defteri</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' rx='14' fill='%23ff8f6b'/><circle cx='24' cy='24' r='14' fill='none' stroke='%232a0f06' stroke-width='2.6'/><path d='M18.5 31v-5M24 31v-9M29.5 31v-13' stroke='%232a0f06' stroke-width='3.2' stroke-linecap='round'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a1412;--panel:#10201c;--raised:#17302a;--line:rgba(230,242,238,.13);--tx:#e6f2ee;--mut:#93aea6;--ac:#ff8f6b;--on-ac:#2a0f06;--ok:#4fd1a1;--warn:#f2c14e;--bad:#ff7a7a;--r:20px;--r-sm:12px;--display:"Bricolage Grotesque",system-ui,sans-serif;--serif:"Instrument Serif",Georgia,serif;--mono:"Geist Mono",ui-monospace,monospace;color-scheme:dark}
+.light{--panel:#eaf3ef;--raised:#dcebe5;--bg:#ffffff;--tx:#0e1f1b;--mut:#4d6a62;--line:#c6dcd3;color-scheme:light}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+::selection{background:#ff8f6b55}
+body{margin:0;background:var(--bg);color:var(--tx);font:16.5px/1.55 Geist,system-ui,sans-serif;min-height:100vh;
+background:radial-gradient(900px 520px at 78% -8%,rgba(255,143,107,.16),transparent 70%),linear-gradient(rgba(230,242,238,.035) 1px,transparent 1px) 0 0/64px 64px,linear-gradient(90deg,rgba(230,242,238,.035) 1px,transparent 1px) 0 0/64px 64px,#0a1412;background-attachment:fixed}
+main{max-width:1180px;margin:0 auto;padding:0 20px 72px}
+h1,h2{font-family:var(--display);margin:0}
+h1{font-size:clamp(36px,5vw,58px);font-weight:750;letter-spacing:-.045em;line-height:1}
+h2{font-size:20px;font-weight:650;letter-spacing:-.02em;margin-bottom:16px}
+.kicker{font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--ac);margin:0 0 10px}
+.num,.stat b,td.n,.amt,.months div{font-variant-numeric:tabular-nums}
+.logo{width:34px;height:34px;flex:none}
+.brand{display:flex;gap:10px;align-items:center}
+.name{font-family:var(--display);font-weight:750;font-size:20px;letter-spacing:-.03em;line-height:1.1}
+.name small{display:none}
+.panel,.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:22px;color:var(--tx)}
+input,select,textarea,button{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:10px 14px;min-height:44px;width:100%}
+.panel:not(.light) input,.panel:not(.light) select,.panel:not(.light) textarea{background:var(--bg)}
+textarea{resize:vertical}
+select option{background:var(--panel);color:var(--tx)}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);outline:2px solid var(--ac);outline-offset:1px}
+input[type=color]{padding:3px;width:50px}
+button{cursor:pointer;font-weight:600;width:auto;background:var(--raised);border-radius:999px;transition:background .15s,border-color .15s,transform .15s}
+button:hover{border-color:var(--ac)}
+button.p{background:var(--ac);border-color:var(--ac);color:var(--on-ac);font-weight:700;width:100%}
+button.p:hover{background:#ffa488;transform:translateY(-1px)}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+button.x{background:transparent;color:var(--mut);padding:4px 14px;min-height:34px;font-size:14px}
+button.x:hover,button.x:focus-visible{color:var(--bad);border-color:var(--bad)}
+form{display:grid;gap:14px}
+label{display:grid;gap:6px;font-size:14px;font-weight:500;color:var(--mut)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mut{color:var(--mut);font-size:14px}
+::-webkit-scrollbar{height:8px;width:8px}::-webkit-scrollbar-thumb{background:var(--raised);border-radius:4px}
+
+/* pill bar (auth + app) */
+.pillbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:8px 10px 8px 16px;border:1px solid var(--line);border-radius:999px;background:rgba(16,32,28,.72);margin-top:18px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.langSel{width:auto;padding:8px 14px;border-radius:999px;min-height:40px}
+
+/* auth */
+#auth{min-height:100vh;padding:0 20px 40px;max-width:1240px;margin:0 auto}
+.authgrid{display:grid;grid-template-columns:1.1fr 1fr;gap:56px;align-items:center;padding:56px 0 24px}
+.hero-side{display:flex;flex-direction:column;gap:28px}
+.hero-side h2{font-size:clamp(40px,6vw,84px);font-weight:750;letter-spacing:-.05em;line-height:.98;margin:0}
+.hero-side h2 em{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.08em;letter-spacing:-.02em;color:var(--ac)}
+.hero-side p{color:var(--mut);margin:0;max-width:470px;font-size:17px}
+.hero-side ul{list-style:none;padding:0;margin:0;display:grid;gap:12px}
+.hero-side li{display:flex;gap:12px;align-items:center;font-family:var(--mono);font-size:13px;letter-spacing:.04em}
+.hero-side li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--ac);flex:none}
+.form-side .card{width:100%;max-width:460px;margin-left:auto;padding:30px;border-radius:28px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:var(--raised);border-radius:999px;margin-bottom:22px}
+.tabs button{border:0;background:transparent;color:var(--mut);width:100%}
+.tabs button[aria-selected=true]{background:#0e1f1b;color:#e6f2ee}
+#aerr{color:#b3261e;margin:0;min-height:22px;font-size:14px}
+@media(max-width:900px){.authgrid{grid-template-columns:1fr;gap:32px;padding-top:36px}.form-side .card{margin:0 auto}}
+
+/* app */
+.titlerow{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between;margin:44px 0 24px}
+.titlerow input{width:auto;border-radius:999px}
+.chip{display:flex;gap:10px;align-items:center;padding:3px 14px 3px 3px;border:1px solid var(--line);border-radius:999px}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--ac);color:var(--on-ac);font-weight:700;font-size:14px;display:grid;place-items:center}
+.chip b{display:block;font-size:14px;font-weight:600;line-height:1.2}.chip span{font-size:12px;color:var(--mut)}
+#stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px}
+#stats .stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px}
+#stats .stat:first-child{background:#eaf3ef;color:#0e1f1b;border-color:#eaf3ef}
+#stats .stat:first-child span{color:#4d6a62}
+.stat span{display:block;font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--mut)}
+.stat b{display:block;font-family:var(--display);font-size:32px;font-weight:700;letter-spacing:-.035em;margin-top:6px;line-height:1.1}
+#stats .stat:first-child b{border-bottom:2px dashed var(--ac);padding-bottom:10px}
+.grid{display:grid;gap:16px}.g4{grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))}
+.workspace{display:grid;grid-template-columns:minmax(300px,390px) 1fr;gap:16px;margin-top:16px;align-items:start}
+.workspace>div{display:grid;gap:16px;min-width:0}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}}
+.bar{height:6px;background:var(--raised);border-radius:3px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%}
+.item{margin-bottom:16px}
+.item>div{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px}
+.pill{display:inline-block;padding:2px 12px;border-radius:999px;font-size:14px;font-weight:500;background:color-mix(in srgb,var(--c) 20%,transparent)}
+.ftools{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.ftools input,.ftools select{flex:1;min-width:130px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:13px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-family:var(--mono);color:var(--mut);font-size:11.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+td.n,th.n{text-align:right}td.d{white-space:normal}td.n{font-weight:600}
+td.act{text-align:right}td.act button+button{margin-left:20px}
+tbody tr:hover{background:var(--raised)}
+.over{color:var(--bad);font-weight:700}
+.months{display:flex;align-items:flex-end;gap:12px;height:140px}
+.months div{flex:1;text-align:center;font-family:var(--mono);font-size:12px;color:var(--mut)}
+.months i{display:block;width:100%;max-width:38px;margin:0 auto 6px;background:var(--raised);border-radius:8px}
+.months .now i{background:var(--ac)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--tx);color:var(--bg);padding:11px 20px;border-radius:999px;font-weight:600;opacity:0;transition:.2s;pointer-events:none;z-index:9;color:#0a1412}
+#toast.on{opacity:1;transform:translateX(-50%)}
+#langSuggest{width:100%;margin-top:4px;padding:6px;font-size:14px;color:#c4472a;min-height:36px}
+.clsbox{border:1px solid;border-radius:var(--r-sm);padding:16px 18px;margin-bottom:16px}.clsbox b{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.02em}.clsbox ul{margin:10px 0;padding-left:20px}.clsbox li{margin-bottom:4px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+
+/* ===== landing v2: hareketli ===== */
+html{scroll-behavior:smooth}
+html.modal-open{overflow:hidden}
+#auth{position:relative}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+#auth>*:not(#bg):not(#authModal){position:relative;z-index:1}
+.sp{position:fixed!important;top:0;left:0;height:3px;width:0;background:var(--ac);z-index:70!important}
+.pillbar.nav{position:sticky;top:12px;z-index:20;background:#10201cee;transition:padding .25s,transform .25s}
+.pillbar.nav.small{padding-top:4px;padding-bottom:4px}
+.navlinks{display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--raised)}
+.navlinks a{color:var(--mut);text-decoration:none;font-weight:500;font-size:14.5px;padding:8px 16px;border-radius:999px;transition:color .15s,background .15s}
+.navlinks a:hover{color:var(--tx);background:rgba(230,242,238,.08)}
+@media(max-width:860px){.navlinks{display:none}}
+.pillbar.nav button.cta{width:auto}
+.landing-hero{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center;padding:64px 0 32px}
+@media(max-width:900px){.landing-hero{grid-template-columns:1fr;padding-top:36px}}
+.hero-text{display:flex;flex-direction:column;gap:24px}
+.hero-text h2{font-size:clamp(42px,6.2vw,88px);font-weight:750;letter-spacing:-.05em;line-height:.97;margin:0}
+.hero-text h2 .w{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.08em}
+.hero-text h2 .w>span{display:inline-block;transform:translateY(105%);animation:wup .9s calc(var(--i)*.07s + .1s) cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes wup{to{transform:none}}
+.hero-text h2 em,.hero-text h2 .w.em>span{font-family:var(--serif);font-style:italic;font-weight:400;font-size:1.08em;letter-spacing:-.02em;color:var(--ac)}
+.hero-text .lead{color:var(--mut);margin:0;max-width:480px;font-size:17.5px}
+.typed{margin:0;font:500 15px var(--mono);letter-spacing:.04em;color:var(--mut)}
+.typed b{color:var(--tx);font-weight:500}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--ac);margin-left:3px;vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px}
+.cta-row button{width:auto;padding:12px 28px;font-size:16px}
+button.outline{background:transparent}
+.mag{transition:transform .2s ease-out,background .15s,border-color .15s}
+/* stage */
+.stage{position:relative;display:grid;place-items:center;min-height:620px;perspective:1100px}
+.phone-wrap{transform:rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg));transition:transform .15s ease-out;transform-style:preserve-3d}
+.phone{width:290px;height:580px;border:10px solid #1d2f2a;border-radius:46px;background:#eaf3ef;color:#0e1f1b;position:relative;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.5);animation:float 6s ease-in-out infinite}
+.notch{position:absolute;top:10px;left:50%;width:88px;height:24px;margin-left:-44px;background:#0a1412;border-radius:99px;z-index:2}
+.screen{padding:44px 18px 18px;display:flex;flex-direction:column;gap:12px;height:100%}
+.scr-time{font:500 12px var(--mono);margin:0;color:#4d6a62}
+.scr-h{font:750 24px var(--display);letter-spacing:-.04em;margin:0}
+.scr-card{background:#fff;border:1px solid #c6dcd3;border-radius:18px;padding:14px 16px}
+.scr-k{display:block;font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:#4d6a62}
+.scr-card b{display:block;font:700 28px var(--display);letter-spacing:-.04em;margin-top:2px;font-variant-numeric:tabular-nums}
+.dash{display:block;border-bottom:2px dashed var(--ac);margin-top:8px}
+.scr-seg{display:flex;gap:3px;height:12px;border-radius:99px;overflow:hidden;background:#dcebe5}
+.scr-seg i{display:block;height:100%;background:var(--c);flex:var(--f,.0001) 1 0;transition:flex-grow .8s cubic-bezier(.2,.8,.2,1)}
+.scr-list{list-style:none;margin:0;padding:0;display:grid;gap:8px;align-content:start;height:178px;overflow:hidden}
+.scr-list li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid #c6dcd3;border-radius:14px;padding:10px 12px;font-size:13.5px;animation:slidein .55s cubic-bezier(.2,.8,.2,1) both}
+.scr-list li.out{animation:slideout .4s ease-in forwards}
+@keyframes slidein{from{opacity:0;transform:translateY(-22px) scale(.96)}}
+@keyframes slideout{to{opacity:0;transform:translateX(30px)}}
+.scr-list b{font-variant-numeric:tabular-nums}
+.dotc{width:10px;height:10px;border-radius:50%;background:var(--c)}
+.scr-coin{position:absolute;left:50%;bottom:16px;width:52px;height:52px;margin-left:-26px;border-radius:50%;background:var(--ac);display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.28)}
+.fcard{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 16px;box-shadow:0 20px 40px rgba(0,0,0,.4);min-width:170px;transform:translate(var(--px,0px),var(--py,0px))}
+.fcard .mono-k{display:block;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--ac)}
+.fcard b{display:block;font:700 18px var(--display);letter-spacing:-.02em;margin-top:2px}
+.fcard.f1{top:80px;right:-8px;animation:bob 5s ease-in-out infinite}
+.fcard.f1.pop{animation:pop2 .5s cubic-bezier(.2,.8,.2,1),bob 5s .5s ease-in-out infinite}
+@keyframes pop2{from{opacity:.2;scale:.85}}
+.fcard.f2{bottom:96px;left:-14px;animation:bob 6s -2s ease-in-out infinite}
+.fcard.f3{top:240px;left:-40px;min-width:150px;animation:bob 7s -4s ease-in-out infinite}
+.fbar{display:block;height:6px;border-radius:3px;background:var(--raised);margin-top:8px;overflow:hidden}
+.fbar i{display:block;height:100%;width:0;background:var(--ac);animation:fill 1.4s 1s ease-out forwards}
+@keyframes fill{to{width:80%}}
+.mini6{display:flex;align-items:flex-end;gap:5px;height:44px;margin-top:8px}
+.mini6 i{flex:1;height:var(--h);background:var(--raised);border-radius:3px;transform-origin:bottom;animation:growy 1s cubic-bezier(.2,.8,.2,1) both}
+.mini6 i:last-child{background:var(--ac)}
+.mini6 i:nth-child(2){animation-delay:.1s}.mini6 i:nth-child(3){animation-delay:.2s}.mini6 i:nth-child(4){animation-delay:.3s}.mini6 i:nth-child(5){animation-delay:.4s}.mini6 i:nth-child(6){animation-delay:.5s}
+@keyframes growy{from{transform:scaleY(0)}}
+@keyframes float{50%{transform:translateY(-10px)}}
+@keyframes bob{50%{translate:0 -12px}}
+@media(max-width:700px){.fcard.f3{display:none}.fcard.f1{right:0}.fcard.f2{left:0}}
+/* marquee */
+.marquee{overflow:hidden;border-block:1px solid var(--line);margin:18px -20px 0;padding:15px 0;mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marquee+.marquee{border-top:0;margin-top:0}
+.track{display:flex;width:max-content;animation:marq 38s linear infinite}
+.marquee.rev .track{animation-direction:reverse;animation-duration:30s}
+.track span{font:500 13px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut);padding:0 28px;position:relative;white-space:nowrap}
+.track span::after{content:"";position:absolute;right:-3px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--ac)}
+@keyframes marq{to{transform:translateX(-50%)}}
+.marquee:hover .track{animation-play-state:paused}
+/* stats */
+.stats4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;padding:56px 0 0}
+.stats4 b{display:block;font:750 clamp(44px,6vw,76px)/1 var(--display);letter-spacing:-.05em;font-variant-numeric:tabular-nums}
+.stats4 span{display:block;font:500 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-top:6px}
+/* sections */
+.sec{padding:80px 0 8px}
+.sec>h2,.trybox h2{font-size:clamp(30px,4.2vw,52px);letter-spacing:-.045em;line-height:1.02;font-weight:750;max-width:760px;margin-bottom:28px}
+.lead2{max-width:560px;margin:-12px 0 24px}
+.bento{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.tile{overflow:hidden;position:relative;min-height:240px;display:flex;flex-direction:column;gap:6px}
+.tile h3{font:700 22px var(--display);letter-spacing:-.03em;margin:0}
+.tile p{margin:0;color:var(--mut)}
+.t-big{grid-column:span 2;grid-row:span 2}
+.t-wide{grid-column:span 2}
+@media(max-width:900px){.bento{grid-template-columns:1fr 1fr}.t-big{grid-column:span 2}}
+@media(max-width:560px){.bento{grid-template-columns:1fr}.t-big,.t-wide{grid-column:auto}}
+.bars6{display:flex;align-items:flex-end;gap:12px;flex:1;min-height:150px;margin-top:18px}
+.bars6 i{flex:1;height:var(--h);background:var(--raised);border-radius:10px 10px 4px 4px;transform:scaleY(0);transform-origin:bottom;transition:transform 1s cubic-bezier(.2,.8,.2,1)}
+.bars6 i:last-child{background:var(--ac)}
+.in .bars6 i{transform:none}
+.in .bars6 i:nth-child(2){transition-delay:.1s}.in .bars6 i:nth-child(3){transition-delay:.2s}.in .bars6 i:nth-child(4){transition-delay:.3s}.in .bars6 i:nth-child(5){transition-delay:.4s}.in .bars6 i:nth-child(6){transition-delay:.5s}
+.donut-mini{width:110px;height:110px;margin-top:auto;align-self:flex-end}
+.donut-mini circle{fill:none;stroke-width:16;stroke-dasharray:0 100;transition:stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1)}
+.in .donut-mini circle{stroke-dasharray:var(--l) 100;stroke-dashoffset:var(--o)}
+.hello{margin-top:auto;font:italic 400 48px/1 var(--serif);color:var(--ac);overflow:hidden;height:56px}
+.hello span{display:inline-block;animation:hin .6s cubic-bezier(.2,.8,.2,1)}
+@keyframes hin{from{transform:translateY(100%);opacity:0}}
+.curtick{margin-top:auto;height:54px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 15%,#000 85%,transparent)}
+.curtick div{display:flex;gap:26px;width:max-content;font:700 40px/54px var(--display);color:var(--ac);animation:marq 9s linear infinite}
+.bands{display:flex;gap:4px;height:22px;margin-top:auto}
+.bands i{display:block;border-radius:99px;background:var(--c);flex:0 1 0;transition:flex-grow 1.2s cubic-bezier(.2,.8,.2,1)}
+.in .bands i{flex:var(--w) 1 0}
+/* try it */
+.try{display:grid;gap:18px;padding:28px;border-radius:28px}
+.try-grid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;align-items:end}
+@media(max-width:700px){.try-grid{grid-template-columns:1fr}}
+.rng b{font:700 18px var(--display);color:#0e1f1b;margin-left:6px}
+input[type=range]{padding:0;min-height:30px;accent-color:#e0603b;background:transparent;border:0}
+.try-bands{position:relative;display:flex;gap:4px;height:26px;border-radius:99px;overflow:visible}
+.try-bands>i{display:block;height:100%;background:var(--c);flex:var(--w) 1 0;transition:flex-grow .8s cubic-bezier(.2,.8,.2,1);min-width:6px}
+.try-bands>i:first-child{border-radius:99px 0 0 99px}.try-bands>i:nth-last-child(2){border-radius:0 99px 99px 0}
+#tryMarker{position:absolute;top:-8px;bottom:-8px;width:4px;margin-left:-2px;background:#0e1f1b;border-radius:2px;transition:left .35s cubic-bezier(.2,.8,.2,1);left:0}
+.try-out{display:grid;gap:6px}
+.try-out b.cls{font:750 clamp(26px,4vw,40px) var(--display);letter-spacing:-.04em}
+.try-out p{margin:0;color:#35524a}
+.try .mut{color:#4d6a62}
+/* pinned steps */
+.pin{height:260vh;position:relative}
+.pin-in{position:sticky;top:90px;padding-top:40px;min-height:70vh}
+.pin-in h2{font-size:clamp(30px,4.2vw,52px);letter-spacing:-.045em;line-height:1.02;font-weight:750;margin:0 0 36px}
+.pin-body{position:relative;height:260px}
+.pstep{position:absolute;inset:0 auto auto 0;max-width:640px;opacity:0;transform:translateY(40px);transition:opacity .5s,transform .6s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.pstep.on{opacity:1;transform:none}
+.pstep.past{opacity:0;transform:translateY(-40px)}
+.pstep h3{font:700 clamp(26px,3.6vw,40px) var(--display);letter-spacing:-.04em;margin:0 0 10px}
+.pstep p{margin:0;color:var(--mut);font-size:18px}
+.stepno{display:block;font:italic 400 clamp(80px,12vw,150px)/1 var(--serif);color:var(--ac);margin-bottom:4px}
+.pin-track{height:4px;background:var(--raised);border-radius:2px;overflow:hidden;max-width:640px}
+.pin-track i{display:block;height:100%;width:0;background:var(--ac);transition:width .2s linear}
+.mono-hint{font:500 12px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin:14px 0 0}
+.sec.final{margin-top:40px;padding:56px;display:grid;gap:14px;justify-items:start;border-radius:28px}
+.sec.final h2{font-size:clamp(28px,4vw,48px);margin:0;max-width:640px;letter-spacing:-.045em;line-height:1.02;font-weight:750}
+.sec.final p{margin:0;color:#35524a}
+.sec.final button{width:auto;padding:12px 28px}
+/* motion */
+@media(prefers-reduced-motion:no-preference){
+.rise{animation:rise .8s var(--d,0s) cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}}
+.js .rv{opacity:0;transform:translateY(32px);transition:opacity .7s var(--d,0s),transform .7s var(--d,0s) cubic-bezier(.2,.8,.2,1)}
+.js .rv.in{opacity:1;transform:none}
+}
+@media(prefers-reduced-motion:reduce){.phone,.fcard,.track,.curtick div,.caret{animation:none}.hero-text h2 .w>span{transform:none;animation:none}.bars6 i{transform:none}.donut-mini circle{stroke-dasharray:var(--l) 100;stroke-dashoffset:var(--o)}.bands i{flex:var(--w) 1 0}.fbar i{width:80%;animation:none}.mini6 i{animation:none}}
+/* auth modal */
+#authModal{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:20px}
+#authModal .backdrop{position:absolute;inset:0;background:rgba(4,10,9,.75)}
+#authModal .card{position:relative;width:100%;max-width:460px;max-height:92vh;overflow:auto;padding:30px;border-radius:28px;animation:pop .25s cubic-bezier(.2,.8,.2,1)}
+@keyframes pop{from{opacity:0;transform:translateY(16px) scale(.97)}}
+.closeX{position:absolute;top:14px;right:14px;width:38px;min-height:38px;padding:0;display:grid;place-items:center;border-radius:50%;background:var(--raised);color:var(--tx)}
+/* ===== app v2: hareket ===== */
+#app .panel{animation:panelin .7s calc(var(--pi,0)*70ms) cubic-bezier(.2,.8,.2,1) both}
+@keyframes panelin{from{opacity:0;transform:translateY(22px)}}
+.bar i{transform-origin:left;animation:barx .9s .15s cubic-bezier(.2,.8,.2,1) both}
+@keyframes barx{from{transform:scaleX(0)}}
+.months i{transform-origin:bottom;animation:growy .9s calc(var(--i,0)*80ms) cubic-bezier(.2,.8,.2,1) both}
+tbody.anim tr{animation:rowin .5s calc(var(--i,0)*45ms) cubic-bezier(.2,.8,.2,1) both}
+@keyframes rowin{from{opacity:0;transform:translateX(-18px)}}
+.row2b{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-top:16px;align-items:start}
+@media(max-width:940px){.row2b{grid-template-columns:1fr}}
+.donutwrap{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+#donut{width:170px;height:170px;flex:none}
+#donut circle.sg{fill:none;stroke-width:15;stroke-dasharray:0 100;transition:stroke-dasharray 1.1s cubic-bezier(.2,.8,.2,1)}
+#donut text{fill:var(--tx);font:700 10.5px var(--display);text-anchor:middle;font-variant-numeric:tabular-nums}
+#donut text.k{fill:var(--mut);font:500 6px var(--mono);letter-spacing:.1em}
+#donutLegend{list-style:none;margin:0;padding:0;display:grid;gap:8px;flex:1;min-width:150px}
+#donutLegend li{display:flex;gap:8px;align-items:center;justify-content:space-between;font-size:14px}
+#donutLegend li:hover{color:var(--ac)}
+.heat{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.heat i{aspect-ratio:1;border-radius:8px;background:var(--raised);display:grid;place-items:center;font:500 11px var(--mono);color:var(--mut);animation:cellin .5s calc(var(--i)*14ms) cubic-bezier(.2,.8,.2,1) both;transition:transform .15s}
+.heat i:hover{transform:scale(1.15);z-index:1}
+.heat i.v{background:color-mix(in srgb,var(--ac) var(--p),var(--raised));color:#fff}
+.heat i.e{background:transparent}
+@keyframes cellin{from{opacity:0;transform:scale(.5)}}
+#heat i[data-day]{cursor:pointer}
+#heat i.sel{outline:2px solid var(--tx);outline-offset:2px}
+.dayd{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:8px}
+.dayhead{display:flex;justify-content:space-between;gap:12px;font-family:var(--display);font-size:18px}
+.dayrow{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.dayrow:last-child{border-bottom:0}
+.dayrow .dd{min-width:0;overflow:hidden;text-overflow:ellipsis}
+@media(prefers-reduced-motion:reduce){#app .panel,.bar i,.months i,tbody.anim tr,.heat i{animation:none}#donut circle.sg{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="logo" viewBox="0 0 48 48"><rect width="48" height="48" rx="14" fill="#ff8f6b"/><circle cx="24" cy="24" r="14" fill="none" stroke="#2a0f06" stroke-width="2.6"/><path d="M18.5 31v-5M24 31v-9M29.5 31v-13" stroke="#2a0f06" stroke-width="3.2" stroke-linecap="round"/></symbol>
+</defs></svg>
+
+<section id="auth" hidden>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="sp" id="sp" aria-hidden="true"></div>
+
+  <div class="pillbar nav" id="nav">
+    <div class="brand"><svg class="logo"><use href="#logo"/></svg><div class="name">Kese</div></div>
+    <nav class="navlinks"><a href="#ozellikler" data-i18n="navFeatures"></a><a href="#dene" data-i18n="navTry"></a><a href="#nasil" data-i18n="navHow"></a></nav>
+    <div class="tools">
+      <select class="langSel" aria-label="Language"></select>
+      <button data-open="login" data-i18n="tabLogin"></button>
+      <button class="p cta" data-open="reg" data-i18n="tabReg"></button>
+    </div>
+  </div>
+
+  <div class="landing-hero">
+    <div class="hero-text">
+      <p class="kicker rise" style="--d:.05s" data-i18n="kicker"></p>
+      <h2 id="heroSplit" data-i18n-html="heroH"></h2>
+      <p class="lead rise" style="--d:.5s" data-i18n="heroP"></p>
+      <p class="typed rise" style="--d:.6s"><span data-i18n="typedLead"></span> <b id="typed"></b><i class="caret"></i></p>
+      <div class="cta-row rise" style="--d:.7s">
+        <button class="p mag" data-open="reg" data-i18n="tabReg"></button>
+        <button class="outline mag" data-open="login" data-i18n="tabLogin"></button>
+      </div>
+    </div>
+
+    <div class="stage" id="stage" aria-hidden="true">
+      <div class="phone-wrap" id="phoneWrap">
+        <div class="phone">
+          <div class="notch"></div>
+          <div class="screen">
+            <p class="scr-time">14:15</p>
+            <p class="scr-h" data-i18n="overview"></p>
+            <div class="scr-card">
+              <span class="scr-k" data-i18n="mTotal"></span>
+              <b id="mockTotal">&#8378;0,00</b>
+              <i class="dash"></i>
+            </div>
+            <div class="scr-seg" id="demoSeg"></div>
+            <ul class="scr-list" id="demoList"></ul>
+            <div class="scr-coin"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 5v14M5 12h14" stroke="#2a0f06" stroke-width="2.6" stroke-linecap="round"/></svg></div>
+          </div>
+        </div>
+      </div>
+      <div class="fcard f1" data-depth="26"><span class="mono-k" data-i18n="addExp"></span><b id="fcNew">Market &middot; &#8378;250,00</b></div>
+      <div class="fcard f2" data-depth="-18"><span class="mono-k" data-i18n="budget"></span><b>80%</b><i class="fbar"><i></i></i></div>
+      <div class="fcard f3" data-depth="14"><span class="mono-k" data-i18n="last6"></span><div class="mini6"><i style="--h:30%"></i><i style="--h:55%"></i><i style="--h:42%"></i><i style="--h:70%"></i><i style="--h:50%"></i><i style="--h:92%"></i></div></div>
+    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true"><div class="track"><span data-i18n="byCat"></span><span data-i18n="budget"></span><span data-i18n="last6"></span><span data-i18n="incTitle"></span><span data-i18n="currency"></span><span data-i18n="csv"></span><span>T&uuml;rk&ccedil;e &middot; English &middot; Deutsch &middot; Fran&ccedil;ais &middot; Espa&ntilde;ol &middot; &#1056;&#1091;&#1089;&#1089;&#1082;&#1080;&#1081;</span></div></div>
+  <div class="marquee rev" aria-hidden="true"><div class="track"><span>TRY</span><span>USD</span><span>EUR</span><span>GBP</span><span>CHF</span><span>JPY</span><span>AZN</span><span>SAR</span><span>AED</span><span>CAD</span><span>RUB</span><span>BRL</span><span>INR</span><span>CNY</span></div></div>
+
+  <section class="stats4">
+    <div class="rv" style="--d:0s"><b data-count="6">0</b><span data-i18n="stLang"></span></div>
+    <div class="rv" style="--d:.1s"><b data-count="171">0</b><span data-i18n="stCountry"></span></div>
+    <div class="rv" style="--d:.2s"><b data-count="0" id="curCount">0</b><span data-i18n="stCurr"></span></div>
+    <div class="rv" style="--d:.3s"><b data-count="8">0</b><span data-i18n="stCat"></span></div>
+  </section>
+
+  <section id="ozellikler" class="sec">
+    <h2 class="rv" data-i18n="secFeat"></h2>
+    <div class="bento">
+      <article class="panel tile t-big rv" style="--d:0s"><h3 data-i18n="ft2h"></h3><p data-i18n="ft2p"></p><div class="bars6" aria-hidden="true"><i style="--h:28%"></i><i style="--h:46%"></i><i style="--h:36%"></i><i style="--h:64%"></i><i style="--h:52%"></i><i style="--h:90%"></i></div></article>
+      <article class="panel tile rv" style="--d:.08s"><h3 data-i18n="ft1h"></h3><p data-i18n="ft1p"></p>
+        <svg class="donut-mini" viewBox="0 0 120 120" aria-hidden="true"><g transform="rotate(-90 60 60)"><circle cx="60" cy="60" r="44" pathLength="100" stroke="#7cc4ff" style="--l:46;--o:0"/><circle cx="60" cy="60" r="44" pathLength="100" stroke="#4fd1a1" style="--l:28;--o:-46"/><circle cx="60" cy="60" r="44" pathLength="100" stroke="#f2c14e" style="--l:14;--o:-74"/><circle cx="60" cy="60" r="44" pathLength="100" stroke="#ff8f6b" style="--l:12;--o:-88"/></g></svg>
+      </article>
+      <article class="panel tile rv" style="--d:.16s"><h3 data-i18n="bLangH"></h3><p data-i18n="bLangP"></p><div class="hello" aria-hidden="true"><span id="hello1">Merhaba</span></div></article>
+      <article class="panel tile rv" style="--d:.24s"><h3 data-i18n="bCurH"></h3><p data-i18n="bCurP"></p><div class="curtick" aria-hidden="true"><div><span>&#8378;</span><span>$</span><span>&euro;</span><span>&pound;</span><span>&yen;</span><span>&#8378;</span><span>$</span><span>&euro;</span><span>&pound;</span><span>&yen;</span></div></div></article>
+      <article class="panel tile t-wide rv" style="--d:.32s"><h3 data-i18n="ft3h"></h3><p data-i18n="ft3p"></p><div class="bands" aria-hidden="true"><i style="--w:3;--c:#ff7b72"></i><i style="--w:6;--c:#e3b341"></i><i style="--w:18;--c:#58a6ff"></i><i style="--w:73;--c:#7ee787"></i></div></article>
+      <article class="panel tile rv" style="--d:.4s"><h3 data-i18n="bCsvH"></h3><p data-i18n="bCsvP"></p></article>
+    </div>
+  </section>
+
+  <section id="dene" class="sec trybox">
+    <div class="rv"><h2 data-i18n="tryTitle"></h2><p class="mut lead2" data-i18n="tryLead"></p></div>
+    <div class="panel light try rv" style="--d:.1s">
+      <div class="try-grid">
+        <label><span data-i18n="country"></span><select id="tryCountry"></select></label>
+        <label class="rng"><span><span data-i18n="tryDaily"></span> <b id="tryX"></b></span><input type="range" id="trySlider" min="0" max="100" value="55"></label>
+      </div>
+      <div class="try-bands" id="tryBands"><div id="tryMarker"></div></div>
+      <div class="try-out" id="tryOut"></div>
+      <p class="mut" data-i18n="tryNote"></p>
+    </div>
+  </section>
+
+  <section id="nasil" class="pin">
+    <div class="pin-in">
+      <h2 data-i18n="secHow"></h2>
+      <div class="pin-body">
+        <div class="pstep" data-i="0"><span class="stepno">1</span><h3 data-i18n="st1h"></h3><p data-i18n="st1p"></p></div>
+        <div class="pstep" data-i="1"><span class="stepno">2</span><h3 data-i18n="st2h"></h3><p data-i18n="st2p"></p></div>
+        <div class="pstep" data-i="2"><span class="stepno">3</span><h3 data-i18n="st3h"></h3><p data-i18n="st3p"></p></div>
+      </div>
+      <div class="pin-track"><i id="pinBar"></i></div>
+      <p class="mono-hint" data-i18n="stepHint"></p>
+    </div>
+  </section>
+
+  <section class="sec final panel light rv">
+    <h2 data-i18n="ctaH"></h2>
+    <p data-i18n="ctaP"></p>
+    <button class="p mag" data-open="reg" data-i18n="tabReg"></button>
+  </section>
+
+  <div id="authModal" hidden role="dialog" aria-modal="true" aria-label="Kese">
+    <div class="backdrop" data-close></div>
+    <div class="card light">
+      <button class="closeX" data-close aria-label="Close"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tabLogin" aria-selected="true" data-i18n="tabLogin"></button>
+        <button role="tab" id="tabReg" aria-selected="false" data-i18n="tabReg"></button>
+      </div>
+
+      <form id="loginForm">
+        <label><span data-i18n="email"></span><input type="email" id="lemail" autocomplete="username" required></label>
+        <label><span data-i18n="pass"></span><input type="password" id="lpass" autocomplete="current-password" required></label>
+        <button class="p" data-i18n="tabLogin"></button>
+      </form>
+
+      <form id="regForm" hidden>
+        <label><span data-i18n="name"></span><input id="rname" autocomplete="name" required maxlength="60"></label>
+        <label><span data-i18n="email"></span><input type="email" id="remail" autocomplete="username" required></label>
+        <label><span data-i18n="passNew"></span><input type="password" id="rpass" autocomplete="new-password" minlength="8" required></label>
+        <div class="row">
+          <label><span data-i18n="country"></span><select id="rcountry" required></select><button type="button" id="langSuggest" hidden></button></label>
+          <label><span data-i18n="city"></span><select id="rcity" required></select>
+            <input id="rcityText" list="citylist" autocomplete="off" data-i18n-ph="cityPh" maxlength="60" hidden>
+          </label>
+        </div>
+        <label><span data-i18n="currency"></span><select id="rcur"></select></label>
+        <div class="row">
+          <label><span data-i18n="incIncome"></span><input type="number" id="rinc" min="0" step="1"></label>
+          <label><span data-i18n="incHH"></span><input type="number" id="rhh" min="1" step="1" value="1"></label>
+        </div>
+        <button class="p" data-i18n="btnReg"></button>
+      </form>
+      <datalist id="citylist"></datalist>
+      <p id="aerr" role="alert"></p>
+      <p class="mut" style="margin:6px 0 0" data-i18n="privacy"></p>
+    
+    </div>
+  </div>
+</section>
+
+<main id="app" hidden>
+<header class="pillbar">
+  <div class="brand"><svg class="logo"><use href="#logo"/></svg><div class="name">Kese<small data-i18n="brandTag"></small></div></div>
+  <div class="tools">
+    <select class="langSel" aria-label="Language"></select>
+    <button id="csv" data-i18n="csv"></button>
+    <div class="chip"><div class="avatar" id="avatar"></div><div><b id="uname"></b><span id="uloc"></span></div></div>
+    <button id="logout" data-i18n="logout"></button>
+  </div>
+</header>
+
+<div class="titlerow"><div><p class="kicker" data-i18n="brandTag"></p><h1 data-i18n="overview"></h1></div><input type="month" id="month" aria-label="Month"></div>
+
+<section id="stats"></section>
+
+<div class="workspace">
+  <div>
+    <section class="panel light">
+      <h2 id="formTitle"></h2>
+      <form id="form">
+        <div class="row">
+          <label><span data-i18n="date"></span><input type="date" id="date" required></label>
+          <label><span id="amountLabel"></span><input type="number" id="amount" step="0.01" min="0.01" required></label>
+        </div>
+        <label><span data-i18n="desc"></span><input id="desc" required maxlength="100"></label>
+        <div class="row">
+          <label><span data-i18n="category"></span><select id="cat" required></select></label>
+          <label><span data-i18n="payment"></span><select id="pay"></select></label>
+        </div>
+        <label><span data-i18n="note"></span><textarea id="note" rows="2" maxlength="300"></textarea></label>
+        <div class="row"><button class="p" data-i18n="save"></button><button type="button" id="cancel" hidden data-i18n="cancel"></button></div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2 data-i18n="byCat"></h2>
+      <div id="breakdown"></div>
+      <form id="catForm" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center">
+        <input id="cname" style="flex:1 1 130px" data-i18n-ph="newCat" required maxlength="30">
+        <input id="ccolor" type="color" value="#ff8f6b">
+        <input id="cbudget" style="flex:0 1 84px" type="number" min="0" step="1" data-i18n-ph="budget">
+        <button data-i18n="add"></button>
+      </form>
+    </section>
+  </div>
+
+  <div>
+    <section class="panel">
+      <h2 data-i18n="expenses"></h2>
+      <div class="ftools">
+        <input id="q" data-i18n-ph="search">
+        <select id="fcat"></select>
+      </div>
+      <div class="scroll"><table>
+        <thead><tr><th data-i18n="date"></th><th data-i18n="desc"></th><th data-i18n="category"></th><th data-i18n="payShort"></th><th class="n" data-i18n="amount"></th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+    </section>
+
+    <section class="panel">
+      <h2 data-i18n="last6"></h2>
+      <div class="months" id="months"></div>
+    </section>
+
+    <section class="panel" id="income"></section>
+  </div>
+</div>
+
+<div class="row2b">
+  <section class="panel"><h2 data-i18n="byCat"></h2><div class="donutwrap"><svg id="donut" viewBox="0 0 120 120" role="img"></svg><ul id="donutLegend"></ul></div></section>
+  <section class="panel"><h2 data-i18n="heatTitle"></h2><div class="heat" id="heat"></div><div id="dayDetail" class="dayd" aria-live="polite"></div></section>
+</div>
+</main>
+<div id="toast" role="status"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const today = () => new Date().toISOString().slice(0, 10);
+const lget = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const lset = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const toast = m => { const t = $('toast'); t.textContent = m; t.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('on'), 1800); };
+
+/* ---- diller ---- */
+const LANGS = [['tr','Türkçe','tr-TR'],['en','English','en-US'],['de','Deutsch','de-DE'],['fr','Français','fr-FR'],['es','Español','es-ES'],['ru','Русский','ru-RU']];
+// sıra: tr, en, de, fr, es, ru
+const T = {
+  brandTag: ['Gider Defteri','Expense Ledger','Ausgabenbuch','Livre des dépenses','Libro de gastos','Журнал расходов'],
+  heroH: ['Giderlerinize hak ettiği <em>özeni</em> gösterin.','Give your expenses the <em>care</em> they deserve.','Geben Sie Ihren Ausgaben die <em>Sorgfalt</em>, die sie verdienen.','Offrez à vos dépenses le <em>soin</em> qu’elles méritent.','Dé a sus gastos el <em>cuidado</em> que merecen.','Уделите своим расходам заслуженное <em>внимание</em>.'],
+  heroP: ['Harcamalarınızı kategorilere ayırın, bütçenizi izleyin, ayları karşılaştırın. Hepsi tek bir şık ekranda.','Sort spending into categories, track your budget and compare months, all on one elegant screen.','Ordnen Sie Ausgaben Kategorien zu, verfolgen Sie Ihr Budget und vergleichen Sie Monate, alles auf einem eleganten Bildschirm.','Classez vos dépenses par catégorie, suivez votre budget et comparez les mois, sur un seul écran élégant.','Clasifique sus gastos por categorías, siga su presupuesto y compare meses, todo en una sola pantalla elegante.','Распределяйте траты по категориям, следите за бюджетом и сравнивайте месяцы — всё на одном стильном экране.'],
+  f1: ['Kategorilere göre ayrıntılı gider takibi','Detailed expense tracking by category','Detaillierte Ausgabenverfolgung nach Kategorie','Suivi détaillé des dépenses par catégorie','Seguimiento detallado de gastos por categoría','Подробный учёт расходов по категориям'],
+  f2: ['Aylık bütçe uyarıları ve 6 aylık karşılaştırma','Monthly budget alerts and 6-month comparison','Monatliche Budgetwarnungen und 6-Monats-Vergleich','Alertes budgétaires mensuelles et comparaison sur 6 mois','Alertas de presupuesto mensual y comparación de 6 meses','Ежемесячные оповещения о бюджете и сравнение за 6 месяцев'],
+  f3: ['Verileriniz yalnızca kendi hesabınıza ait','Your data belongs only to your account','Ihre Daten gehören nur zu Ihrem Konto','Vos données n’appartiennent qu’à votre compte','Sus datos pertenecen solo a su cuenta','Ваши данные принадлежат только вашему аккаунту'],
+  tabLogin: ['Giriş yap','Sign in','Anmelden','Connexion','Iniciar sesión','Вход'],
+  tabReg: ['Hesap oluştur','Create account','Konto erstellen','Créer un compte','Crear cuenta','Регистрация'],
+  email: ['E-posta','Email','E-Mail','E-mail','Correo electrónico','Эл. почта'],
+  pass: ['Parola','Password','Passwort','Mot de passe','Contraseña','Пароль'],
+  passNew: ['Parola (en az 8 karakter)','Password (at least 8 characters)','Passwort (mindestens 8 Zeichen)','Mot de passe (8 caractères minimum)','Contraseña (mínimo 8 caracteres)','Пароль (не менее 8 символов)'],
+  name: ['Ad soyad','Full name','Vollständiger Name','Nom complet','Nombre completo','Полное имя'],
+  country: ['Ülke','Country','Land','Pays','País','Страна'],
+  city: ['Şehir','City','Stadt','Ville','Ciudad','Город'],
+  cityPh: ['Şehir yazın veya arayın','Type or search your city','Stadt eingeben oder suchen','Saisissez ou recherchez votre ville','Escriba o busque su ciudad','Введите или найдите город'],
+  errCity: ['Listeden geçerli bir şehir seçin.','Please pick a valid city from the list.','Bitte eine gültige Stadt aus der Liste wählen.','Choisissez une ville valide dans la liste.','Elija una ciudad válida de la lista.','Выберите город из списка.'],
+  selCountry: ['Ülke seçin','Select country','Land wählen','Choisir un pays','Elegir país','Выберите страну'],
+  selCity: ['Şehir seçin','Select city','Stadt wählen','Choisir une ville','Elegir ciudad','Выберите город'],
+  currency: ['Para birimi','Currency','Währung','Devise','Moneda','Валюта'],
+  btnReg: ['Hesabı oluştur','Create account','Konto erstellen','Créer le compte','Crear cuenta','Создать аккаунт'],
+  privacy: ['Hesap bilgileri ve giderleriniz bu cihazın tarayıcısında saklanır. Parolanız şifrelenerek (PBKDF2) kaydedilir.','Your account and expenses are stored in this device’s browser. Your password is stored hashed (PBKDF2).','Konto und Ausgaben werden im Browser dieses Geräts gespeichert. Ihr Passwort wird gehasht (PBKDF2) gespeichert.','Votre compte et vos dépenses sont stockés dans le navigateur de cet appareil. Le mot de passe est haché (PBKDF2).','Su cuenta y gastos se guardan en el navegador de este dispositivo. La contraseña se guarda cifrada (PBKDF2).','Аккаунт и расходы хранятся в браузере этого устройства. Пароль хранится в виде хеша (PBKDF2).'],
+  errCreds: ['E-posta veya parola hatalı.','Incorrect email or password.','E-Mail oder Passwort falsch.','E-mail ou mot de passe incorrect.','Correo o contraseña incorrectos.','Неверная почта или пароль.'],
+  errExists: ['Bu e-posta ile zaten bir hesap var.','An account with this email already exists.','Für diese E-Mail existiert bereits ein Konto.','Un compte existe déjà avec cet e-mail.','Ya existe una cuenta con este correo.','Аккаунт с этой почтой уже существует.'],
+  errLoc: ['Lütfen ülke ve şehir seçin.','Please choose a country and city.','Bitte Land und Stadt wählen.','Veuillez choisir un pays et une ville.','Elija un país y una ciudad.','Выберите страну и город.'],
+  errCrypto: ['Bu tarayıcı güvenli kayıt için gerekli özelliği desteklemiyor.','This browser lacks the feature needed for secure sign-up.','Dieser Browser unterstützt die sichere Registrierung nicht.','Ce navigateur ne prend pas en charge l’inscription sécurisée.','Este navegador no admite el registro seguro.','Этот браузер не поддерживает безопасную регистрацию.'],
+  csv: ['CSV indir','Download CSV','CSV herunterladen','Télécharger CSV','Descargar CSV','Скачать CSV'],
+  logout: ['Çıkış yap','Sign out','Abmelden','Déconnexion','Cerrar sesión','Выйти'],
+  mTotal: ['Aylık toplam','Monthly total','Monatssumme','Total mensuel','Total mensual','Итого за месяц'],
+  count: ['Gider sayısı','Expenses','Anzahl Ausgaben','Nombre de dépenses','N.º de gastos','Число расходов'],
+  daily: ['Günlük ortalama','Daily average','Tagesdurchschnitt','Moyenne quotidienne','Promedio diario','В среднем в день'],
+  topCat: ['En büyük kategori','Top category','Größte Kategorie','Catégorie principale','Categoría principal','Главная категория'],
+  addExp: ['Gider ekle','Add expense','Ausgabe hinzufügen','Ajouter une dépense','Añadir gasto','Добавить расход'],
+  editExp: ['Gideri düzenle','Edit expense','Ausgabe bearbeiten','Modifier la dépense','Editar gasto','Изменить расход'],
+  date: ['Tarih','Date','Datum','Date','Fecha','Дата'],
+  amount: ['Tutar','Amount','Betrag','Montant','Importe','Сумма'],
+  desc: ['Açıklama','Description','Beschreibung','Description','Descripción','Описание'],
+  category: ['Kategori','Category','Kategorie','Catégorie','Categoría','Категория'],
+  payment: ['Ödeme yöntemi','Payment method','Zahlungsart','Moyen de paiement','Método de pago','Способ оплаты'],
+  payShort: ['Ödeme','Payment','Zahlung','Paiement','Pago','Оплата'],
+  note: ['Not','Note','Notiz','Note','Nota','Заметка'],
+  save: ['Kaydet','Save','Speichern','Enregistrer','Guardar','Сохранить'],
+  cancel: ['Vazgeç','Cancel','Abbrechen','Annuler','Cancelar','Отмена'],
+  pay_cash: ['Nakit','Cash','Bar','Espèces','Efectivo','Наличные'],
+  pay_card: ['Kredi kartı','Card','Karte','Carte','Tarjeta','Карта'],
+  pay_bank: ['Banka/EFT','Bank transfer','Überweisung','Virement','Transferencia','Банк. перевод'],
+  pay_other: ['Diğer','Other','Sonstige','Autre','Otro','Другое'],
+  byCat: ['Kategoriye göre dağılım','Breakdown by category','Verteilung nach Kategorie','Répartition par catégorie','Desglose por categoría','Распределение по категориям'],
+  del: ['Sil','Delete','Löschen','Supprimer','Eliminar','Удалить'],
+  newCat: ['Yeni kategori','New category','Neue Kategorie','Nouvelle catégorie','Nueva categoría','Новая категория'],
+  budget: ['Bütçe','Budget','Budget','Budget','Presupuesto','Бюджет'],
+  add: ['Ekle','Add','Hinzufügen','Ajouter','Añadir','Добавить'],
+  last6: ['Son 6 ay','Last 6 months','Letzte 6 Monate','6 derniers mois','Últimos 6 meses','Последние 6 месяцев'],
+  expenses: ['Giderler','Expenses','Ausgaben','Dépenses','Gastos','Расходы'],
+  search: ['Ara…','Search…','Suchen…','Rechercher…','Buscar…','Поиск…'],
+  allCats: ['Tüm kategoriler','All categories','Alle Kategorien','Toutes les catégories','Todas las categorías','Все категории'],
+  edit: ['Düzenle','Edit','Bearbeiten','Modifier','Editar','Изменить'],
+  none: ['Bu ay için gider yok.','No expenses this month.','Keine Ausgaben in diesem Monat.','Aucune dépense ce mois-ci.','No hay gastos este mes.','В этом месяце расходов нет.'],
+  confDelExp: ['Bu gider silinsin mi?','Delete this expense?','Diese Ausgabe löschen?','Supprimer cette dépense ?','¿Eliminar este gasto?','Удалить этот расход?'],
+  confDelCat: ['Kategori silinsin mi?','Delete this category?','Diese Kategorie löschen?','Supprimer cette catégorie ?','¿Eliminar esta categoría?','Удалить эту категорию?'],
+  catExists: ['Bu kategori zaten var.','This category already exists.','Diese Kategorie existiert bereits.','Cette catégorie existe déjà.','Esta categoría ya existe.','Такая категория уже есть.'],
+  catHasExp: ['Bu kategoride gider var; önce onları başka kategoriye taşıyın veya silin.','This category has expenses; move or delete them first.','Diese Kategorie enthält Ausgaben; verschieben oder löschen Sie diese zuerst.','Cette catégorie contient des dépenses ; déplacez-les ou supprimez-les d’abord.','Esta categoría tiene gastos; muévalos o elimínelos primero.','В этой категории есть расходы; сначала перенесите или удалите их.'],
+  saved: ['Gider kaydedildi','Expense saved','Ausgabe gespeichert','Dépense enregistrée','Gasto guardado','Расход сохранён'],
+  updated: ['Gider güncellendi','Expense updated','Ausgabe aktualisiert','Dépense mise à jour','Gasto actualizado','Расход обновлён'],
+  deleted: ['Gider silindi','Expense deleted','Ausgabe gelöscht','Dépense supprimée','Gasto eliminado','Расход удалён'],
+  incTitle: ['Ülkenizde gelir dağılımı','Income distribution in your country','Einkommensverteilung in Ihrem Land','Répartition des revenus dans votre pays','Distribución del ingreso en su país','Распределение доходов в вашей стране'],
+  incExtreme: ['Aşırı yoksul','Extreme poverty','Extreme Armut','Pauvreté extrême','Pobreza extrema','Крайняя бедность'],
+  incPoor: ['Yoksul','Poor','Arm','Pauvre','Pobre','Бедные'],
+  incLow: ['Alt-orta gelir','Lower-middle income','Untere Mittelschicht','Revenu moyen inférieur','Ingreso medio-bajo','Доход ниже среднего'],
+  incUp: ['Orta ve üzeri','Middle and above','Mittel und darüber','Moyen et supérieur','Medio y superior','Средний и выше'],
+  incHunger: ['Yetersiz beslenme','Undernourishment','Unterernährung','Sous-alimentation','Subalimentación','Недоедание'],
+  incTop: ['En zengin %20’nin gelir payı','Income share of richest 20%','Einkommensanteil der reichsten 20 %','Part du revenu des 20 % les plus riches','Parte del ingreso del 20 % más rico','Доля дохода богатейших 20 %'],
+  incGini: ['Gini katsayısı','Gini index','Gini-Index','Indice de Gini','Índice de Gini','Индекс Джини'],
+  incGni: ['Kişi başı gelir (yıllık)','Income per person (annual)','Einkommen pro Kopf (jährlich)','Revenu par habitant (annuel)','Ingreso per cápita (anual)','Доход на душу населения (в год)'],
+  incNone: ['Ülkeniz için Dünya Bankası verisi yok.','No World Bank data for your country.','Keine Weltbank-Daten für Ihr Land.','Pas de données de la Banque mondiale pour votre pays.','No hay datos del Banco Mundial para su país.','Нет данных Всемирного банка по вашей стране.'],
+  incSrc: ['Kaynak: Dünya Bankası, {y} verisi; günlük gelir, 2021 satın alma gücü paritesi ($). Yaklaşık bir sınıflandırmadır, kesin değildir.','Source: World Bank, {y} data; daily income in 2021 PPP dollars. A rough classification, not exact.','Quelle: Weltbank, Daten {y}; Tageseinkommen in 2021-Kaufkraftparität ($). Grobe Einteilung, nicht exakt.','Source : Banque mondiale, données {y} ; revenu quotidien en parité de pouvoir d’achat 2021 ($). Classification approximative.','Fuente: Banco Mundial, datos {y}; ingreso diario en paridad de poder adquisitivo 2021 ($). Clasificación aproximada.','Источник: Всемирный банк, данные за {y} г.; дневной доход в долларах по ППС 2021. Приблизительная классификация.'],
+  incYou: ['Gelir sınıfınız: {c}','Your income class: {c}','Ihre Einkommensklasse: {c}','Votre classe de revenu : {c}','Su clase de ingresos: {c}','Ваш класс дохода: {c}'],
+  cls3: ['Orta gelir','Middle income','Mittleres Einkommen','Revenu intermédiaire','Ingreso medio','Средний доход'],
+  cls4: ['Üst-orta gelir','Upper-middle income','Gehobene Mitte','Revenu moyen supérieur','Ingreso medio-alto','Доход выше среднего'],
+  cls5: ['Varlıklı','Affluent','Wohlhabend','Aisé','Acomodado','Состоятельный'],
+  e1: ['Kişi başı günlük geliriniz yaklaşık {x} $ (2021 satın alma gücü paritesi).','Your income per person is about ${x} per day (2021 PPP).','Ihr Einkommen pro Person beträgt etwa {x} $ pro Tag (2021-Kaufkraftparität).','Votre revenu par personne est d’environ {x} $ par jour (PPA 2021).','Su ingreso por persona es de unos {x} $ al día (PPA 2021).','Ваш доход на человека — около {x} $ в день (ППС 2021).'],
+  e2: ['Dünya Bankası’nın günlük sınırlarına göre {pos}.','By the World Bank’s daily lines, you are {pos}.','Nach den Tagesgrenzen der Weltbank sind Sie {pos}.','Selon les seuils quotidiens de la Banque mondiale, vous êtes {pos}.','Según los umbrales diarios del Banco Mundial, usted está {pos}.','По дневным порогам Всемирного банка вы {pos}.'],
+  pos0: ['{a} $’ın altındasınız','below ${a}','unter {a} $','en dessous de {a} $','por debajo de {a} $','ниже {a} $'],
+  pos1: ['{a} $ ile {b} $ arasındasınız','between ${a} and ${b}','zwischen {a} $ und {b} $','entre {a} $ et {b} $','entre {a} $ y {b} $','между {a} $ и {b} $'],
+  pos2: ['{b} $ ile {c} $ arasındasınız','between ${b} and ${c}','zwischen {b} $ und {c} $','entre {b} $ et {c} $','entre {b} $ y {c} $','между {b} $ и {c} $'],
+  pos3: ['{c} $ sınırının üzerindesiniz','above ${c}','über {c} $','au-dessus de {c} $','por encima de {c} $','выше {c} $'],
+  e3: ['Ülkenizde nüfusun %{p}’i günde {c} $’ın altında yaşıyor.','In your country {p}% of people live on less than ${c} a day.','In Ihrem Land leben {p} % der Menschen von weniger als {c} $ pro Tag.','Dans votre pays, {p} % des habitants vivent avec moins de {c} $ par jour.','En su país, el {p} % de la población vive con menos de {c} $ al día.','В вашей стране {p} % населения живёт менее чем на {c} $ в день.'],
+  e4: ['Gini {g}, en zengin %20’nin gelir payı %{t}; tahminen nüfusun %{q} kadarından daha fazla kazanıyorsunuz.','With a Gini of {g} and {t}% of income going to the richest 20%, you likely earn more than about {q}% of people.','Bei einem Gini von {g} und {t} % des Einkommens für die reichsten 20 % verdienen Sie voraussichtlich mehr als etwa {q} % der Menschen.','Avec un Gini de {g} et {t} % du revenu pour les 20 % les plus riches, vous gagnez probablement plus qu’environ {q} % des habitants.','Con un Gini de {g} y un {t} % del ingreso para el 20 % más rico, probablemente gana más que cerca del {q} % de la población.','При индексе Джини {g} и доле богатейших 20 % в {t} % вы, вероятно, зарабатываете больше примерно {q} % населения.'],
+  e5: ['{c} $ sınırı, ülkenizde kişi başı ayda yaklaşık {m} {cur} eder.','The ${c} line equals about {m} {cur} per person per month in your country.','Die {c}-$-Grenze entspricht in Ihrem Land etwa {m} {cur} pro Person und Monat.','Le seuil de {c} $ équivaut à environ {m} {cur} par personne et par mois dans votre pays.','El umbral de {c} $ equivale a unos {m} {cur} por persona al mes en su país.','Порог в {c} $ в вашей стране — около {m} {cur} на человека в месяц.'],
+  incIncome: ['Aylık net hane geliri (isteğe bağlı)','Monthly net household income (optional)','Monatliches Netto-Haushaltseinkommen (optional)','Revenu net mensuel du foyer (facultatif)','Ingreso neto mensual del hogar (opcional)','Чистый месячный доход семьи (необязательно)'],
+  incHH: ['Hane halkı kişi sayısı','People in household','Personen im Haushalt','Personnes dans le foyer','Personas en el hogar','Человек в семье'],
+  incCalc: ['Sınıfımı hesapla','Calculate my class','Meine Klasse berechnen','Calculer ma classe','Calcular mi clase','Рассчитать мой класс'],
+  incNoCur: ['Gelir sınıfı için gelirinizi ülkenizin para biriminde ({cur}) girmelisiniz; hesabınızın para birimi farklı.','To get an income class, enter your income in your country’s currency ({cur}); your account currency differs.','Für die Einkommensklasse geben Sie das Einkommen in der Landeswährung ({cur}) an; Ihre Kontowährung weicht ab.','Pour obtenir une classe de revenu, saisissez votre revenu dans la devise du pays ({cur}) ; la devise de votre compte est différente.','Para obtener su clase de ingresos, indíquelo en la moneda de su país ({cur}); la moneda de su cuenta es distinta.','Для класса дохода укажите доход в валюте вашей страны ({cur}); валюта аккаунта другая.'],
+  incNoCls: ['Ülkeniz için gelir sınıfı hesaplanamıyor (yeterli istatistik yok).','An income class cannot be calculated for your country (not enough statistics).','Für Ihr Land lässt sich keine Einkommensklasse berechnen (zu wenige Statistiken).','Impossible de calculer une classe de revenu pour votre pays (statistiques insuffisantes).','No se puede calcular la clase de ingresos para su país (faltan estadísticas).','Для вашей страны класс дохода рассчитать нельзя (недостаточно статистики).'],
+  incDisc: ['Tahmini hesaptır: gelir, {y} satın alma gücü katsayısı ve ABD enflasyonuyla 2021 fiyatlarına çevrilir; gelir dağılımı log-normal varsayımla modellenir. Yüksek enflasyonlu ülkelerde sapabilir.','A rough estimate: income is converted to 2021 prices using the {y} PPP factor and US inflation, and the distribution is modelled as log-normal. It may be off in high-inflation countries.','Grobe Schätzung: Das Einkommen wird mit dem PPP-Faktor {y} und der US-Inflation auf Preise von 2021 umgerechnet; die Verteilung wird log-normal modelliert. In Ländern mit hoher Inflation kann es abweichen.','Estimation approximative : le revenu est converti en prix 2021 avec le facteur de PPA {y} et l’inflation américaine ; la distribution est modélisée par une loi log-normale. Peut diverger dans les pays à forte inflation.','Estimación aproximada: el ingreso se convierte a precios de 2021 con el factor de PPA de {y} y la inflación de EE. UU.; la distribución se modela como log-normal. Puede desviarse en países con alta inflación.','Приблизительная оценка: доход пересчитывается в цены 2021 г. по коэффициенту ППС {y} и инфляции США; распределение моделируется как логнормальное. В странах с высокой инфляцией возможны отклонения.'],
+  overview: ['Genel bakış','Overview','Übersicht','Aperçu','Resumen','Обзор'],
+  kicker: ['Kişisel gider defteri · Web','Personal expense ledger · Web','Persönliches Ausgabenbuch · Web','Carnet de dépenses personnel · Web','Libro de gastos personal · Web','Личный учёт расходов · Веб'],
+  navFeatures: ['Özellikler','Features','Funktionen','Fonctions','Funciones','Возможности'],
+  navHow: ['Nasıl çalışır','How it works','So funktioniert’s','Comment ça marche','Cómo funciona','Как это работает'],
+  secFeat: ['Giderlerin için ihtiyacın olan her şey','Everything you need for your spending','Alles, was Sie für Ihre Ausgaben brauchen','Tout ce qu’il faut pour vos dépenses','Todo lo que necesita para sus gastos','Всё, что нужно для ваших расходов'],
+  ft1h: ['Kategorilere ayır','Sort into categories','In Kategorien ordnen','Classer par catégorie','Clasificar por categorías','Разбивайте по категориям'],
+  ft1p: ['Kira, market, fatura… her gideri bir kategoriye ata, aylık bütçe koy; aşılınca kırmızı uyarı al.','Rent, groceries, bills… give every expense a category, set a monthly budget and get a red warning when you go over.','Miete, Lebensmittel, Rechnungen … ordnen Sie jede Ausgabe einer Kategorie zu, setzen Sie ein Monatsbudget und erhalten Sie eine rote Warnung bei Überschreitung.','Loyer, courses, factures… attribuez une catégorie à chaque dépense, fixez un budget mensuel et recevez une alerte rouge en cas de dépassement.','Alquiler, supermercado, facturas… asigne una categoría a cada gasto, fije un presupuesto mensual y reciba un aviso en rojo si lo supera.','Аренда, продукты, счета… назначайте каждой трате категорию, задавайте месячный бюджет и получайте красное предупреждение при превышении.'],
+  ft2h: ['Ayları karşılaştır','Compare months','Monate vergleichen','Comparer les mois','Comparar meses','Сравнивайте месяцы'],
+  ft2p: ['Son 6 ayı yan yana gör; hangi ay fazla harcadığını bir bakışta anla.','See the last 6 months side by side and spot the costly month at a glance.','Sehen Sie die letzten 6 Monate nebeneinander und erkennen Sie auf einen Blick, welcher Monat teuer war.','Voyez les 6 derniers mois côte à côte et repérez d’un coup d’œil le mois le plus coûteux.','Vea los últimos 6 meses lado a lado y detecte de un vistazo el mes más caro.','Смотрите последние 6 месяцев рядом и сразу видите самый дорогой месяц.'],
+  ft3h: ['Ülkene göre gelir sınıfı','Income class for your country','Einkommensklasse für Ihr Land','Classe de revenu selon votre pays','Clase de ingresos según su país','Класс дохода по вашей стране'],
+  ft3p: ['Dünya Bankası verileriyle gelirinin ülkendeki yerini, dayanak istatistikleriyle birlikte gör.','See where your income sits in your country, with the World Bank statistics behind it.','Sehen Sie mit den Weltbank-Statistiken, wo Ihr Einkommen in Ihrem Land steht.','Voyez où se situe votre revenu dans votre pays, avec les statistiques de la Banque mondiale.','Vea dónde se sitúa su ingreso en su país, con las estadísticas del Banco Mundial.','Узнайте, где ваш доход находится в вашей стране, на основе статистики Всемирного банка.'],
+  secHow: ['Üç adımda başla','Start in three steps','In drei Schritten starten','Démarrez en trois étapes','Empiece en tres pasos','Начните за три шага'],
+  st1h: ['Hesap oluştur','Create an account','Konto erstellen','Créer un compte','Crear una cuenta','Создайте аккаунт'],
+  st1p: ['Ülkeni, şehrini ve para birimini seç; dilin ona göre ayarlanır.','Pick your country, city and currency; the language follows.','Wählen Sie Land, Stadt und Währung; die Sprache folgt.','Choisissez votre pays, votre ville et votre devise ; la langue suit.','Elija su país, ciudad y moneda; el idioma se ajusta.','Выберите страну, город и валюту; язык подстроится.'],
+  st2h: ['Gider ekle','Add an expense','Ausgabe hinzufügen','Ajouter une dépense','Añadir un gasto','Добавьте расход'],
+  st2p: ['Tutar, kategori ve tarih yeter; birkaç saniye sürer.','Amount, category and date are enough; it takes seconds.','Betrag, Kategorie und Datum genügen; es dauert Sekunden.','Montant, catégorie et date suffisent ; quelques secondes.','Importe, categoría y fecha bastan; son unos segundos.','Достаточно суммы, категории и даты — это займёт секунды.'],
+  st3h: ['Ayı gör','See your month','Monat ansehen','Voir le mois','Vea su mes','Смотрите месяц'],
+  st3p: ['Toplam, kategori dağılımı ve bütçe tek ekranda.','Total, category breakdown and budget on one screen.','Summe, Kategorienverteilung und Budget auf einem Bildschirm.','Total, répartition par catégorie et budget sur un seul écran.','Total, desglose por categoría y presupuesto en una sola pantalla.','Итог, распределение по категориям и бюджет на одном экране.'],
+  ctaH: ['Gider defterini bugün başlat','Start your expense ledger today','Starten Sie heute Ihr Ausgabenbuch','Commencez votre carnet de dépenses aujourd’hui','Empiece hoy su libro de gastos','Начните вести учёт расходов уже сегодня'],
+  ctaP: ['Ücretsiz hesap aç, ilk giderini ekle.','Create a free account and add your first expense.','Konto erstellen und die erste Ausgabe erfassen.','Créez un compte et ajoutez votre première dépense.','Cree una cuenta y añada su primer gasto.','Создайте аккаунт и добавьте первый расход.'],
+  navTry: ['Dene','Try it','Ausprobieren','Essayer','Probar','Попробовать'],
+  typedLead: ['Takip et:','Track:','Verfolgen:','Suivez :','Siga:','Следите:'],
+  stLang: ['dil','languages','Sprachen','langues','idiomas','языков'],
+  stCountry: ['ülkede gelir sınıfı','countries with income class','Länder mit Einkommensklasse','pays avec classe de revenu','países con clase de ingresos','стран с классом дохода'],
+  stCurr: ['para birimi','currencies','Währungen','devises','monedas','валют'],
+  stCat: ['hazır kategori','ready categories','Standardkategorien','catégories prêtes','categorías listas','готовых категорий'],
+  bLangH: ['6 dilde, anında','Six languages, instantly','Sechs Sprachen, sofort','Six langues, instantanément','Seis idiomas, al instante','Шесть языков, мгновенно'],
+  bLangP: ['Ülkeni seçince dilin önerilir; istediğin an değiştir.','Pick your country and your language is suggested; switch any time.','Land wählen, Sprache wird vorgeschlagen; jederzeit wechselbar.','Choisissez votre pays, la langue est suggérée ; changez à tout moment.','Elija su país y se sugiere el idioma; cámbielo cuando quiera.','Выберите страну — язык предложится сам; меняйте в любой момент.'],
+  bCurH: ['Her para birimi','Every currency','Jede Währung','Toutes les devises','Todas las monedas','Любая валюта'],
+  bCurP: ['Dünyadaki para birimlerinden birini seç; tutarlar ona göre biçimlenir.','Choose from world currencies; amounts are formatted to match.','Wählen Sie eine Weltwährung; Beträge werden passend formatiert.','Choisissez parmi les devises du monde ; les montants sont formatés en conséquence.','Elija una moneda del mundo; los importes se formatean en consecuencia.','Выберите любую валюту мира; суммы форматируются соответственно.'],
+  bCsvH: ['Verini dışa aktar','Export your data','Daten exportieren','Exportez vos données','Exporte sus datos','Экспортируйте данные'],
+  bCsvP: ['Seçili ayı tek tıkla CSV olarak indir; Excel’de Türkçe karakterlerle açılır.','Download the selected month as CSV in one click; it opens cleanly in Excel.','Laden Sie den gewählten Monat mit einem Klick als CSV herunter; öffnet sich sauber in Excel.','Téléchargez le mois choisi en CSV en un clic ; il s’ouvre proprement dans Excel.','Descargue el mes elegido como CSV con un clic; se abre bien en Excel.','Скачайте выбранный месяц в CSV одним щелчком; открывается в Excel без проблем.'],
+  tryTitle: ['Kendin dene','Try it yourself','Probieren Sie es aus','Essayez vous-même','Pruébelo usted mismo','Попробуйте сами'],
+  tryLead: ['Ülkeni seç, günlük kişi başı gelirini kaydır; sınıfın anında değişir.','Pick your country and slide your daily income per person; your class updates instantly.','Wählen Sie Ihr Land und verschieben Sie das Tageseinkommen pro Person; Ihre Klasse ändert sich sofort.','Choisissez votre pays et faites glisser votre revenu quotidien par personne ; votre classe change aussitôt.','Elija su país y deslice su ingreso diario por persona; su clase cambia al instante.','Выберите страну и двигайте дневной доход на человека — класс меняется мгновенно.'],
+  tryDaily: ['Kişi başı günlük gelir','Daily income per person','Tageseinkommen pro Person','Revenu quotidien par personne','Ingreso diario por persona','Дневной доход на человека'],
+  tryMonthly: ['Kişi başı aylık, yerel para','Monthly per person, local currency','Monatlich pro Person, Landeswährung','Mensuel par personne, devise locale','Mensual por persona, moneda local','В месяц на человека, местная валюта'],
+  tryNote: ['Dünya Bankası verilerine dayanan kaba bir tahmindir.','A rough estimate based on World Bank data.','Grobe Schätzung auf Basis von Weltbank-Daten.','Estimation approximative basée sur les données de la Banque mondiale.','Estimación aproximada basada en datos del Banco Mundial.','Приблизительная оценка на данных Всемирного банка.'],
+  stepHint: ['Kaydır','Scroll','Scrollen','Faites défiler','Desplácese','Прокрутите'],
+  dayHint: ['Ayrıntı için bir güne dokun.','Tap a day for details.','Tippen Sie auf einen Tag für Details.','Touchez un jour pour les détails.','Toque un día para ver el detalle.','Нажмите на день, чтобы увидеть детали.'],
+  dayNone: ['Bu gün gider yok.','No expenses on this day.','Keine Ausgaben an diesem Tag.','Aucune dépense ce jour-là.','Sin gastos este día.','В этот день расходов нет.'],
+  heatTitle: ['Gün gün harcama','Spending by day','Ausgaben pro Tag','Dépenses par jour','Gasto por día','Расходы по дням'],
+  cat_rent: ['Kira','Rent','Miete','Loyer','Alquiler','Аренда'],
+  cat_groceries: ['Market','Groceries','Lebensmittel','Courses','Supermercado','Продукты'],
+  cat_bills: ['Fatura','Bills','Rechnungen','Factures','Facturas','Счета'],
+  cat_transport: ['Ulaşım','Transport','Verkehr','Transport','Transporte','Транспорт'],
+  cat_dining: ['Yeme-İçme','Dining','Essen & Trinken','Restaurants','Restaurantes','Рестораны'],
+  cat_health: ['Sağlık','Health','Gesundheit','Santé','Salud','Здоровье'],
+  cat_fun: ['Eğlence','Entertainment','Unterhaltung','Loisirs','Ocio','Развлечения'],
+  cat_other: ['Diğer','Other','Sonstiges','Autre','Otro','Другое']
+};
+let lang = lget('kese_lang', null) || (LANGS.find(l => l[0] === navigator.language.slice(0, 2)) || LANGS[0])[0];
+const LOC = () => LANGS.find(l => l[0] === lang)[2];
+const t = k => { const a = T[k]; return a ? a[LANGS.findIndex(l => l[0] === lang)] ?? a[1] : k; };
+
+/* ---- ülke / şehir / para birimi ---- */
+// shortcut: şehir listesi yalnızca bu ülkeler için var, diğerlerinde şehir elle yazılır; yeni ülke için CITIES'e satır ekleyin.
+const CITIES = {
+  TR: 'Adana,Adıyaman,Afyonkarahisar,Ağrı,Aksaray,Amasya,Ankara,Antalya,Ardahan,Artvin,Aydın,Balıkesir,Bartın,Batman,Bayburt,Bilecik,Bingöl,Bitlis,Bolu,Burdur,Bursa,Çanakkale,Çankırı,Çorum,Denizli,Diyarbakır,Düzce,Edirne,Elazığ,Erzincan,Erzurum,Eskişehir,Gaziantep,Giresun,Gümüşhane,Hakkâri,Hatay,Iğdır,Isparta,İstanbul,İzmir,Kahramanmaraş,Karabük,Karaman,Kars,Kastamonu,Kayseri,Kırıkkale,Kırklareli,Kırşehir,Kilis,Kocaeli,Konya,Kütahya,Malatya,Manisa,Mardin,Mersin,Muğla,Muş,Nevşehir,Niğde,Ordu,Osmaniye,Rize,Sakarya,Samsun,Siirt,Sinop,Sivas,Şanlıurfa,Şırnak,Tekirdağ,Tokat,Trabzon,Tunceli,Uşak,Van,Yalova,Yozgat,Zonguldak',
+  DE: 'Berlin,Hamburg,München,Köln,Frankfurt,Stuttgart,Düsseldorf,Dortmund,Essen,Leipzig,Bremen,Dresden,Hannover,Nürnberg,Duisburg',
+  US: 'New York,Los Angeles,Chicago,Houston,Phoenix,Philadelphia,San Antonio,San Diego,Dallas,San Jose,Austin,San Francisco,Seattle,Boston,Miami,Washington D.C.',
+  GB: 'London,Birmingham,Manchester,Glasgow,Liverpool,Leeds,Sheffield,Edinburgh,Bristol,Cardiff,Belfast',
+  FR: 'Paris,Marseille,Lyon,Toulouse,Nice,Nantes,Strasbourg,Montpellier,Bordeaux,Lille',
+  NL: 'Amsterdam,Rotterdam,The Hague,Utrecht,Eindhoven,Groningen',
+  AT: 'Wien,Graz,Linz,Salzburg,Innsbruck',
+  BE: 'Bruxelles,Antwerpen,Gent,Liège,Brugge',
+  CH: 'Zürich,Genève,Basel,Bern,Lausanne',
+  IT: 'Roma,Milano,Napoli,Torino,Firenze,Venezia,Bologna',
+  ES: 'Madrid,Barcelona,Valencia,Sevilla,Bilbao,Málaga',
+  GR: 'Athens,Thessaloniki,Patras,Heraklion',
+  AZ: 'Baku,Ganja,Sumgait,Nakhchivan',
+  SA: 'Riyadh,Jeddah,Mecca,Medina,Dammam',
+  AE: 'Dubai,Abu Dhabi,Sharjah,Ajman',
+  CA: 'Toronto,Montreal,Vancouver,Calgary,Ottawa',
+  RU: 'Moscow,Saint Petersburg,Kazan,Novosibirsk'
+};
+const CUR = Object.fromEntries('AD:EUR,AE:AED,AF:AFN,AG:XCD,AI:XCD,AL:ALL,AM:AMD,AO:AOA,AR:ARS,AT:EUR,AU:AUD,AW:AWG,AX:EUR,AZ:AZN,BA:BAM,BB:BBD,BD:BDT,BE:EUR,BF:XOF,BG:BGN,BH:BHD,BI:BIF,BJ:XOF,BL:EUR,BM:BMD,BN:BND,BO:BOB,BQ:USD,BR:BRL,BS:BSD,BT:BTN,BV:NOK,BW:BWP,BY:BYR,BZ:BZD,CA:CAD,CC:AUD,CD:CDF,CF:XAF,CG:XAF,CH:CHF,CI:XOF,CK:NZD,CL:CLP,CM:XAF,CN:CNY,CO:COP,CR:CRC,CU:CUP,CV:CVE,CW:ANG,CX:AUD,CY:EUR,CZ:CZK,DE:EUR,DJ:DJF,DK:DKK,DM:XCD,DO:DOP,DZ:DZD,EC:USD,EE:EUR,EG:EGP,EH:MAD,ER:ERN,ES:EUR,ET:ETB,FI:EUR,FJ:FJD,FK:FKP,FM:USD,FO:DKK,FR:EUR,GA:XAF,GB:GBP,GD:XCD,GE:GEL,GG:GBP,GH:GHS,GI:GIP,GL:DKK,GM:GMD,GN:GNF,GP:EUR,GQ:XAF,GR:EUR,GS:GBP,GT:GTQ,GU:USD,GW:XOF,GY:GYD,HK:HKD,HM:AUD,HN:HNL,HR:HRK,HT:HTG,HU:HUF,ID:IDR,IE:EUR,IL:ILS,IM:GBP,IN:INR,IO:USD,IQ:IQD,IR:IRR,IS:ISK,IT:EUR,JE:GBP,JM:JMD,JO:JOD,JP:JPY,KE:KES,KG:KGS,KH:KHR,KI:AUD,KM:KMF,KN:XCD,KP:KPW,KR:KRW,KW:KWD,KY:KYD,KZ:KZT,LA:LAK,LB:LBP,LC:XCD,LI:CHF,LK:LKR,LR:LRD,LS:LSL,LT:LTL,LU:EUR,LV:EUR,LY:LYD,MA:MAD,MC:EUR,MD:MDL,ME:EUR,MF:EUR,MG:MGA,MH:USD,MK:MKD,ML:XOF,MM:MMK,MN:MNT,MO:MOP,MP:USD,MQ:EUR,MR:MRO,MS:XCD,MT:EUR,MU:MUR,MV:MVR,MW:MWK,MX:MXN,MY:MYR,MZ:MZN,NA:NAD,NC:XPF,NE:XOF,NF:AUD,NG:NGN,NI:NIO,NL:EUR,NO:NOK,NP:NPR,NR:AUD,NU:NZD,NZ:NZD,OM:OMR,PA:PAB,PE:PEN,PF:XPF,PG:PGK,PH:PHP,PK:PKR,PL:PLN,PM:EUR,PN:NZD,PR:USD,PS:ILS,PT:EUR,PW:USD,PY:PYG,QA:QAR,RE:EUR,RO:RON,RS:RSD,RU:RUB,RW:RWF,SA:SAR,SB:SBD,SC:SCR,SD:SDG,SE:SEK,SG:SGD,SH:SHP,SI:EUR,SJ:NOK,SK:EUR,SL:SLL,SM:EUR,SN:XOF,SO:SOS,SR:SRD,SS:SSP,ST:STD,SV:USD,SX:ANG,SY:SYP,SZ:SZL,TC:USD,TD:XAF,TF:EUR,TG:XOF,TH:THB,TJ:TJS,TK:NZD,TL:USD,TM:TMT,TN:TND,TO:TOP,TR:TRY,TT:TTD,TV:AUD,TW:TWD,TZ:TZS,UA:UAH,UG:UGX,UM:USD,US:USD,UY:UYU,UZ:UZS,VA:EUR,VC:XCD,VE:VEF,VG:USD,VI:USD,VN:VND,VU:VUV,WF:XPF,WS:WST,XK:EUR,YE:YER,YT:EUR,ZA:ZAR,ZM:ZMK,ZW:ZWL'.split(',').map(p => p.split(':')));
+const LANG_OF = {};
+for (const [l, cs] of Object.entries({tr:'TR AZ', de:'DE AT CH LI LU', fr:'FR BE MC', es:'ES MX AR CO CL PE VE EC UY', ru:'RU BY KZ KG', en:'US GB CA AU NZ IE'})) cs.split(' ').forEach(c => LANG_OF[c] = l);
+const NOT_COUNTRY = new Set(['AC','CP','DG','EA','EU','EZ','IC','TA','UN','XA','XB','ZZ','QO']);
+const A_Z = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+let countries = [];
+const countryName = code => { try { return new Intl.DisplayNames([lang], {type: 'region'}).of(code); } catch { return code; } };
+function buildCountries() {
+  const dn = new Intl.DisplayNames([lang], {type: 'region'}), out = [];
+  for (const a of A_Z) for (const b of A_Z) {
+    const c = a + b; if (NOT_COUNTRY.has(c)) continue;
+    let n; try { n = dn.of(c); } catch { continue; }
+    if (n && n !== c) out.push([c, n]);
+  }
+  out.sort((x, y) => x[1].localeCompare(y[1], lang));
+  countries = lang === 'tr' ? [out.find(c => c[0] === 'TR'), ...out.filter(c => c[0] !== 'TR')] : out;
+  const v = $('rcountry').value;
+  $('rcountry').innerHTML = `<option value="">${esc(t('selCountry'))}</option>` + countries.map(([c, n]) => `<option value="${c}">${esc(n)}</option>`).join('');
+  $('rcountry').value = v;
+}
+const curFor = code => [...$('rcur').options].some(o => o.value === CUR[code]) ? CUR[code] : 'USD';
+function buildCurrencies() {
+  const codes = (Intl.supportedValuesOf ? Intl.supportedValuesOf('currency') : ['TRY','USD','EUR','GBP','CHF','AZN','SAR','AED','CAD','RUB']);
+  const dn = new Intl.DisplayNames([lang], {type: 'currency'}), v = $('rcur').value;
+  $('rcur').innerHTML = codes.map(c => { let n = c; try { n = dn.of(c); } catch {} return `<option value="${c}">${c} - ${esc(n)}</option>`; }).join('');
+  $('rcur').value = v || curFor($('rcountry').value);
+}
+// Türkiye'nin 81 ili yerelde tam liste; diğer ülkelerin şehirleri ülke seçilince countriesnow.space'ten çekilir (yalnızca ülke adı gönderilir)
+const cityList = code => code === 'TR' ? CITIES.TR.split(',').sort((a, b) => a.localeCompare(b, 'tr')) : null;
+const API = 'https://countriesnow.space/api/v0.1/countries'; // tek istekte tüm ülkeler (~1 MB), bir kez çekilir
+const apiCities = {};
+let allP = null;
+async function fillCities(code) {
+  const dl = $('citylist'), set = a => dl.innerHTML = a.map(c => `<option value="${esc(c)}">`).join('');
+  set(CITIES[code] ? CITIES[code].split(',').sort((a, b) => a.localeCompare(b, lang)) : []);
+  if (!apiCities[code]) try {
+    allP ||= fetch(API, {signal: AbortSignal.timeout(40000)}).then(r => r.json()).then(j => Object.fromEntries(j.data.map(x => [x.iso2, x.cities])));
+    const list = (await allP)[code];
+    if (list && list.length) apiCities[code] = [...new Set(list)].sort((a, b) => a.localeCompare(b, lang));
+  } catch { allP = null; } // ağ yoksa elle yazılan şehir kabul edilir
+  if (apiCities[code] && $('rcountry').value === code) set(apiCities[code]);
+}
+const updSuggest = () => {
+  const l = LANG_OF[$('rcountry').value], b = $('langSuggest');
+  b.hidden = !l || l === lang; if (l) b.textContent = LANGS.find(x => x[0] === l)[1] + ' →'; b.dataset.l = l || '';
+};
+$('rcountry').onchange = () => {
+  const code = $('rcountry').value, list = cityList(code);
+  $('rcity').hidden = !list; $('rcity').required = !!list;
+  $('rcityText').hidden = !!list; $('rcityText').required = !list && !!code; $('rcityText').value = '';
+  if (list) $('rcity').innerHTML = `<option value="">${esc(t('selCity'))}</option>` + list.map(c => `<option>${esc(c)}</option>`).join('');
+  else if (code) fillCities(code);
+  $('rcur').value = curFor(code);
+  updSuggest();
+};
+$('langSuggest').onclick = () => setLang($('langSuggest').dataset.l);
+
+/* ---- dili uygula ---- */
+document.querySelectorAll('.langSel').forEach(s => { s.innerHTML = LANGS.map(([c, n]) => `<option value="${c}">${n}</option>`).join(''); s.onchange = () => setLang(s.value); });
+function setLang(l) {
+  lang = l; lset('kese_lang', l);
+  if (userEmail) { const all = users(); all[userEmail].lang = l; lset('kese_users', all); }
+  applyLang();
+}
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(e => e.textContent = t(e.dataset.i18n));
+  document.querySelectorAll('[data-i18n-html]').forEach(e => e.innerHTML = t(e.dataset.i18nHtml));
+  document.querySelectorAll('[data-i18n-ph]').forEach(e => e.placeholder = t(e.dataset.i18nPh));
+  document.querySelectorAll('.langSel').forEach(s => s.value = lang);
+  buildCountries(); buildCurrencies(); updSuggest(); aerr(); if (typeof onLang === 'function') onLang();
+  if ($('rcity').options.length && !$('rcity').value) $('rcity').options[0].textContent = t('selCity');
+  const pv = $('pay').value;
+  $('pay').innerHTML = ['cash','card','bank','other'].map(k => `<option value="${k}">${esc(t('pay_' + k))}</option>`).join(''); if (pv) $('pay').value = pv;
+  if (S) {
+    $('uloc').textContent = `${user.city}, ${countryName(user.country)}`;
+    $('amountLabel').textContent = `${t('amount')} (${sym()})`;
+    $('formTitle').textContent = t(editId ? 'editExp' : 'addExp');
+    S.cats.forEach(c => { if (c.k) c.name = t('cat_' + c.k); }); save();
+    render();
+  }
+}
+
+/* ---- hesaplar (shortcut: hesaplar bu tarayıcıda tutulur, cihazlar arası senkron yok; sunucu eklenince taşınmalı) ---- */
+const hex = b => [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join('');
+const unhex = h => Uint8Array.from(h.match(/../g), x => parseInt(x, 16));
+async function hashPw(pw, saltHex) {
+  const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveBits']);
+  return hex(await crypto.subtle.deriveBits({name: 'PBKDF2', hash: 'SHA-256', salt: unhex(saltHex), iterations: 150000}, k, 256));
+}
+const users = () => lget('kese_users', {});
+const aerr = k => $('aerr').textContent = k ? t(k) : '';
+const showTab = reg => {
+  $('loginForm').hidden = reg; $('regForm').hidden = !reg;
+  $('tabLogin').setAttribute('aria-selected', !reg); $('tabReg').setAttribute('aria-selected', reg); aerr();
+};
+$('tabLogin').onclick = () => showTab(false);
+$('tabReg').onclick = () => showTab(true);
+
+$('regForm').onsubmit = async ev => {
+  ev.preventDefault(); aerr();
+  if (!crypto.subtle) return aerr('errCrypto');
+  const email = $('remail').value.trim().toLowerCase(), all = users();
+  if (all[email]) return aerr('errExists');
+  const code = $('rcountry').value;
+  let city = (cityList(code) ? $('rcity').value : $('rcityText').value).trim();
+  if (!code || !city) return aerr('errLoc');
+  if (apiCities[code]) { city = apiCities[code].find(c => c.toLowerCase() === city.toLowerCase()); if (!city) return aerr('errCity'); }
+  const salt = hex(crypto.getRandomValues(new Uint8Array(16)));
+  all[email] = {name: $('rname').value.trim(), salt, hash: await hashPw($('rpass').value, salt),
+    country: code, city, cur: $('rcur').value, lang, income: +$('rinc').value || 0, hh: Math.max(1, +$('rhh').value || 1), created: Date.now()};
+  lset('kese_users', all);
+  if (Object.keys(all).length === 1 && lget('gider', null)) { // ilk hesap, eski tek kullanıcılı verileri devralır
+    lset('kese_data_' + email, lget('gider', null)); try { localStorage.removeItem('gider'); } catch {}
+  }
+  lset('kese_session', email); start(email);
+};
+$('loginForm').onsubmit = async ev => {
+  ev.preventDefault(); aerr();
+  if (!crypto.subtle) return aerr('errCrypto');
+  const email = $('lemail').value.trim().toLowerCase(), u = users()[email];
+  if (!u || await hashPw($('lpass').value, u.salt) !== u.hash) return aerr('errCreds');
+  lset('kese_session', email); start(email);
+};
+$('logout').onclick = () => { try { localStorage.removeItem('kese_session'); } catch {} location.reload(); };
+
+const INC = {"AO":[2018,39.3,53.7,80,17.4,55.6,51.3,2860,364.1027,2025],"AL":[2020,0.3,2.1,19.9,5.6,38,29.4,12060,47.1177,2025],"AE":[2018,0,0,0.6,2.5,34.8,26.4,51550,2.527,2025],"AR":[2024,1,2.8,15.2,2.8,47.9,42.4,14650,42.9862,2021],"AM":[2024,0.8,5.7,47.4,2.5,37.2,27.4,9020,158.5297,2025],"AU":[2020,0.9,1.1,1.5,2.5,41.3,33.8,64120,1.4646,2025],"AT":[2023,0.5,0.6,1,2.5,39,31.2,60360,0.7504,2025],"AZ":[2005,0,0.3,35.9,2.5,37.8,26.6,7360,0.5429,2025],"BI":[2020,74.2,87.2,97.4,null,45,37.5,240,1344.6411,2025],"BE":[2023,0.1,0.1,0.3,2.5,36.3,26.8,59500,0.7718,2025],"BJ":[2021,27.2,50,86.5,11.1,42.3,34.4,1600,196.1809,2025],"BF":[2021,42.1,64.6,90.4,11.7,45.3,37.4,980,193.1073,2025],"BD":[2022,5.9,20.5,71.5,8.2,40.1,30.9,2840,34.9406,2025],"BG":[2023,1,1.6,4.4,2.5,46.2,39.5,17780,0.4146,2025],"BA":[2021,0.3,1,11.7,2.5,38.7,30.3,9940,0.769,2025],"BY":[2020,0,0.1,2.6,2.5,34.8,24.4,9160,0.8486,2025],"BZ":[2018,1,4,19.7,4.4,46.3,39.9,7530,1.0876,2025],"BO":[2024,2.1,4.9,17.4,19.5,46.7,40.9,4420,2.6992,2025],"BR":[2024,3,6.2,20.6,2.5,55.4,50.3,10550,2.5815,2025],"BB":[2016,1.7,3.2,15.8,5,41.2,34.1,27080,2.6373,2021],"BT":[2022,0,0.4,9,null,37.3,28.5,4310,21.0523,2025],"BW":[2015,21.4,35.8,63.2,18.2,59.9,54.9,7390,5.3107,2025],"CF":[2021,71.6,83.9,96.1,29.8,49.2,43,560,259.0147,2025],"CA":[2022,0.3,0.3,0.6,2.5,39.5,31.5,56420,1.2605,2025],"CH":[2023,0.1,0.1,0.3,2.5,41.2,33.5,110330,1.0655,2025],"CL":[2024,0.4,0.7,4.5,2.5,49.9,43,16960,486.8784,2025],"CN":[2022,0,0.5,21.3,2.5,43.7,36,14230,3.4596,2025],"CI":[2021,20.8,41.6,80.9,11.4,43.3,35.3,2780,228.257,2025],"CM":[2021,26.7,41.3,74,4.9,47.9,42.2,1860,209.0084,2025],"CD":[2020,85.3,92.5,98,39.5,51.1,44.7,720,928.6025,2021],"CG":[2011,39.2,55,82.4,25,53.7,48.9,2280,231.2654,2025],"CO":[2024,8.5,14.7,37,4.1,58.9,54.4,7900,1665.593,2025],"KM":[2024,5.1,18,68.2,16.5,39.3,30.3,1950,253.732,2025],"CV":[2015,14.6,29.7,65,8.1,48.7,42.4,5590,52.9795,2025],"CR":[2025,0.8,1.7,9.7,2.5,50.9,45.5,17930,314.5387,2025],"CY":[2023,0,0,0.1,2.5,40.6,31.8,36110,0.5923,2025],"CZ":[2023,0,0,0.8,2.5,35.5,25.7,32960,14.6577,2025],"DE":[2022,0.7,0.9,1.6,2.5,40.9,33.7,60200,0.7189,2025],"DJ":[2017,25.4,43.7,80.8,14.7,47.6,41.6,3960,88.5486,2025],"DK":[2023,0.4,0.4,0.6,2.5,39.2,29.9,77190,6.9217,2025],"DO":[2024,0.8,2,14,2.5,45.4,39,10620,23.8085,2025],"DZ":[2011,0,4.7,41.8,2.5,37.2,27.6,5850,41.7362,2025],"EC":[2025,3.4,8.4,30.1,10.8,51.5,45.9,6890,0.4415,2025],"EG":[2021,1.4,7.1,58.5,8.4,38.6,28.5,3260,7.7218,2025],"ES":[2023,0.8,1,2.3,2.5,40.2,33.4,37120,0.6079,2025],"EE":[2023,0.3,0.6,1.3,2.5,39.3,30.7,32310,0.6717,2025],"ET":[2021,38.6,63.7,93.5,19.9,39.7,31.1,1110,27.0057,2025],"FI":[2023,0.2,0.2,0.4,2.5,36.7,27.4,55250,0.802,2025],"FJ":[2019,4.7,15.1,61.3,7.2,39.4,30.7,6230,0.8894,2025],"FR":[2023,0.1,0.1,0.3,2.5,39.7,31.8,48630,0.7325,2025],"FM":[2013,26.1,43.8,78.1,null,46,40.1,4760,0.9267,2022],"GA":[2017,3.8,8,32.9,23.3,44.4,38,8090,280.85,2025],"GB":[2021,0.4,0.5,0.9,2.5,40,32.4,54550,0.7015,2025],"GE":[2024,4.2,11,45.6,2.5,41.5,33.9,8990,1.0875,2025],"GH":[2016,39,56.3,85.4,6.4,48.6,43.5,2630,5.25,2025],"GN":[2018,11.7,29.2,76.6,8.7,38.2,29.6,1730,3614.2252,2025],"GM":[2020,22,40.2,78.2,17.5,45.6,38.8,930,19.3888,2024],"GW":[2021,39.9,62.1,91.4,20,41.6,33.4,1090,224.8539,2025],"GQ":[2022,8.8,21.5,58.1,null,45.4,38.5,5890,275.6791,2024],"GR":[2023,0.6,0.8,3.2,2.5,40.8,33.4,25360,0.5801,2025],"GD":[2018,0.8,2.9,19.6,null,50.4,43.8,11660,1.668,2025],"GT":[2023,9.7,17.6,47.3,12.7,50.6,45.2,6360,3.4322,2025],"GY":[1998,13,21.5,54.2,2.5,50.1,45.1,28470,97.805,2025],"HN":[2024,15.7,23.5,49.8,14.3,50,45.7,3270,12.617,2025],"HR":[2023,0.3,0.6,2,2.5,38,30.1,25360,0.5208,2025],"HT":[2012,40.4,59.2,88.2,51.4,47.1,41.1,2010,133.5326,2025],"HU":[2017,0.9,1.8,4.9,2.5,38.5,30.6,23850,204.5407,2025],"ID":[2025,3.7,15.5,64.1,6.3,43.2,34.4,5120,5065.969,2025],"IN":[2023,2.6,16.1,80,9.8,34.2,23,2760,19.8389,2025],"IE":[2023,0.1,0.1,0.3,2.5,38.3,29,87360,0.904,2025],"IR":[2023,2.5,7.5,36,6.7,43.3,35.9,4650,157796.0485,2025],"IQ":[2023,0.5,2.4,28,13.4,38.9,29.8,5690,545.9864,2025],"IS":[2019,0.1,0.1,0.4,2.5,36.3,26.8,89220,166.5989,2025],"IL":[2022,0.4,0.9,4.4,2.5,43.5,38.3,56180,3.6558,2025],"IT":[2023,0.9,1,1.9,2.5,41.1,34.3,42080,0.6448,2025],"JM":[2021,1.4,5.1,22.9,8,45.8,39.9,7790,98.2417,2025],"JO":[2010,0.1,0.9,15.3,12.2,42.4,33.7,5260,0.3183,2025],"JP":[2020,1.2,1.6,3.3,2.5,39.4,32.3,38340,103.3366,2025],"KZ":[2021,0,0.3,15.2,2.5,39.3,29.2,13740,190.877,2025],"KE":[2022,45.5,65.5,90.1,34.9,46.3,38.5,2200,44.9844,2025],"KG":[2024,2.2,12.5,65.2,4.8,37.3,27.5,2800,29.3216,2025],"KI":[2023,0.9,5.7,52,3.8,35.1,24.7,3930,0.9691,2025],"KR":[2021,0.1,0.2,0.5,2.5,40.3,32.9,37880,880.1254,2025],"LA":[2024,7.1,22.5,70.3,10,43.1,34.7,2150,5870.1105,2025],"LB":[2022,5.8,15.7,50.7,11.1,42.3,35.5,3560,58470.1387,2025],"LR":[2016,33.6,55,88.3,37.3,42.8,35.3,830,0.5335,2025],"LC":[2015,0.1,0.3,7.8,null,50.3,43.7,13410,1.5947,2025],"LK":[2019,2.7,11.5,53.3,4.9,45.7,37.7,4670,81.1323,2025],"LS":[2017,41.9,56.8,83.8,null,49.7,44.9,1280,6.233,2025],"LT":[2023,1.1,1.2,3.2,2.5,42.9,36,30500,0.5496,2025],"LU":[2023,0.1,0.1,0.2,2.5,40.7,33.6,95720,0.873,2025],"LV":[2023,0.4,0.7,2.8,2.5,41.5,34,24980,0.5521,2025],"MA":[2013,3.7,11.6,49,6.5,47,39.5,4360,3.9596,2025],"MD":[2024,0,0.6,21.4,2.5,36.8,26.8,8050,8.7729,2025],"MG":[2021,69.2,83.9,96.6,41.8,44.7,36.8,560,1315.3847,2025],"MV":[2019,0,0,11.2,null,38.5,29.3,12950,9.5743,2025],"MX":[2024,1.6,4.1,21.4,3.1,48.9,42.6,13730,11.3088,2025],"MH":[2019,2.1,6.7,36.5,null,43.2,35.5,9710,0.9521,2021],"MK":[2019,3.9,7.4,20.5,2.5,39,33.5,9490,22.3925,2025],"ML":[2021,36.1,59.5,88.6,12.1,43.9,35.7,1120,193.4488,2025],"MT":[2023,0.4,0.9,1.1,2.5,39.8,31.8,41440,0.6104,2025],"MM":[2017,10.3,29.1,79.8,4.6,39.9,30.7,1320,499.6977,2021],"ME":[2021,2.5,4,14.5,2.5,40.4,34.3,14150,0.4389,2025],"MN":[2022,0.4,2.3,24.4,2.5,39.8,31.4,6210,1180.7249,2025],"MZ":[2022,81.4,89.1,96.3,22.3,55.5,49.6,570,25.4989,2025],"MR":[2019,10.2,26,71.2,11,40,32,2210,12.1923,2025],"MU":[2017,0.5,2.3,19.1,4.9,44.6,36.8,14040,20.1055,2025],"MW":[2019,75.4,87.3,97.1,24.5,46.2,38.5,600,627.1674,2025],"MY":[2021,0,0.1,2.9,2.5,46.9,40.7,12380,1.4306,2025],"NA":[2015,22.9,35,61.1,20.1,63.7,59.1,4340,7.3792,2025],"NE":[2021,60.5,79.7,96.1,12.9,42.2,32.9,750,199.58,2025],"NG":[2022,41.8,64,92.9,22.2,41.6,33.9,1360,318.0596,2025],"NI":[2014,6.6,15.7,46.5,17.3,52.1,46.2,2850,13.5338,2025],"NL":[2021,0.1,0.1,0.3,2.5,35.2,25.7,68530,0.7673,2025],"NO":[2023,0.2,0.2,0.4,2.5,35.8,26.5,97310,10.0013,2025],"NP":[2022,2.4,9.1,52.7,5.2,39,30,1570,35.2703,2025],"NR":[2012,9.7,21.7,68.5,null,40.7,32.4,20690,1.1435,2021],"PK":[2024,23,47.9,87.1,16.1,42.2,33.5,1500,65.3961,2025],"PA":[2024,3.1,6.8,19.8,4.7,54.3,49.7,19140,0.4967,2025],"PE":[2024,5.1,10.7,36.2,5.7,46.2,40.1,8430,1.927,2025],"PH":[2023,5.3,16.9,58.7,3.4,46.9,39.3,4850,20.5335,2025],"PG":[2009,52.2,69.4,92.1,30.5,47.3,41.9,2890,2.7619,2025],"PL":[2023,0.2,0.4,1.1,2.5,37.3,28.5,25520,2.0632,2025],"PT":[2023,0.4,0.7,2.2,2.5,41.8,33.9,29930,0.5747,2025],"PY":[2024,2.1,4.5,20.5,4.1,50.2,44.2,6750,2874.5596,2025],"PS":[2023,2.1,6.1,28.6,null,43,36.4,3250,0.9065,2025],"QA":[2017,0,0,0,null,41.9,35.1,74330,2.7555,2024],"RO":[2023,0.7,1.3,5.1,2.5,36.9,29.8,20190,2.1805,2025],"RU":[2023,0.1,0.2,0.9,2.5,41,33,15960,30.7532,2025],"RW":[2023,38.6,62.2,89.8,22.6,47.6,39.4,1150,372.7081,2025],"SD":[2014,10.1,26,73.2,10.9,42.4,34.2,900,224.2835,2022],"SN":[2021,17.9,37.3,78.6,5.3,43.9,36.2,1780,226.5143,2025],"SB":[2012,40.3,62.9,90.7,27,44.6,37.1,2020,7.6478,2025],"SL":[2018,41.5,65,91.5,25.3,44.2,35.7,830,6.9256,2025],"SV":[2023,4.6,8.6,29.9,5.3,45.8,39.8,5410,0.4688,2025],"RS":[2023,1.1,2.1,9,2.5,39.9,32.8,13480,52.9297,2025],"SS":[2016,76.5,88,97.6,19.1,49.5,44,1050,158.0521,2021],"ST":[2017,13,30.5,70,23,47.9,40.7,3800,14.6989,2025],"SR":[2022,2.2,4.6,20.9,12.7,45.6,39.2,6140,15.6296,2025],"SK":[2023,0.5,0.8,4.1,null,32.8,23.8,26410,0.5657,2025],"SI":[2023,0,0,0.1,2.5,34.8,24.7,35520,0.5928,2025],"SE":[2023,0.8,0.9,1.5,2.5,37.2,29.3,63010,8.889,2025],"SZ":[2016,44.5,58.3,79.3,15.1,60.2,54.6,3730,6.189,2021],"SC":[2018,0.7,1.4,8.4,2.5,39.1,32.1,19200,8.4503,2025],"SY":[2022,18,42.1,89.3,40.8,35.1,26.4,720,506.8637,2021],"TD":[2022,39.5,61.4,89.5,33.6,44.9,37.4,970,222.761,2025],"TG":[2021,34.7,55.6,87,10.2,45.2,37.9,1350,218.3907,2025],"TH":[2024,0,0.2,11.7,5.4,41.5,33.3,7690,10.6063,2025],"TJ":[2024,6.1,16.9,55.4,8,43.3,36.1,2080,3.1982,2025],"TM":[1998,35.1,55.6,84.6,4.1,47.4,40.8,6340,1.5722,2021],"TL":[2014,44,71.4,96,16.9,38.4,28.7,1510,0.4456,2025],"TO":[2021,0.4,1.8,26.7,null,36.6,27.1,6840,1.8769,2025],"TT":[1992,3.2,9,30.5,10.4,46.1,40.2,18550,3.8409,2025],"TN":[2021,0.7,2.4,20.7,2.8,41.6,33.7,4300,0.9803,2025],"TR":[2023,0.2,0.4,4.1,2.5,49.7,43.7,16300,17.7444,2025],"TV":[2010,9,21.2,60.6,null,46.4,39.1,9780,1.2944,2021],"TZ":[2018,51.3,70,91.5,19.1,48.1,40.5,1270,661.4956,2025],"UG":[2023,54.4,72.3,93.6,20.9,45.3,38.2,1120,1337.1101,2025],"UA":[2020,0,0.2,11.3,10.8,35.9,25.6,5510,11.8646,2025],"UY":[2024,0.2,0.5,5.9,2.5,46.1,40,24020,29.8551,2025],"US":[2024,1.1,1.2,1.8,2.5,47.1,41.8,88810,1,2025],"UZ":[2025,2.3,4,12.4,2.5,40,32.7,3670,3573.2737,2025],"VE":[2006,9.7,16.4,43.3,5.3,49.5,44.7,3860,0.0,2011],"VN":[2022,1.6,4.2,21.5,6.1,43.2,36.1,4970,7203.3696,2025],"VU":[2019,19.5,36.9,81.3,5.8,39.9,32.3,4410,122.2382,2025],"WS":[2013,4.5,11.5,49.4,3.4,46.4,38.7,5640,1.8817,2025],"XK":[2022,10,14.9,38.2,null,42.4,38.3,7760,0.3862,2022],"YE":[2014,33.3,57.7,88,null,44.7,36.7,740,90.3602,2013],"ZA":[2022,17.4,30.2,59.6,11.2,59.5,54.1,6270,7.74,2025],"ZM":[2022,71.7,81.4,94,41,56.4,51.5,1200,8.3925,2025],"ZW":[2019,49.2,64.6,86.2,18.4,56.1,50.3,2660,0.029,2021],"AW":[null,null,null,null,null,null,null,35200,null,null],"AF":[null,null,null,null,27.8,null,null,390,null,null],"AD":[null,null,null,null,null,null,null,53230,null,null],"AG":[null,null,null,null,null,null,null,23790,null,null],"BH":[null,null,null,null,null,null,null,28790,null,null],"BS":[null,null,null,null,null,null,null,37020,null,null],"BM":[null,null,null,null,null,null,null,139370,null,null],"BN":[null,null,null,null,null,null,null,34790,null,null],"CU":[null,null,null,null,3.5,null,null,9010,null,null],"CW":[null,null,null,null,null,null,null,22570,null,null],"KY":[null,null,null,null,null,null,null,81920,null,null],"DM":[null,null,null,null,3,null,null,10690,null,null],"ER":[null,null,null,null,null,null,null,650,null,null],"FO":[null,null,null,null,null,null,null,73120,null,null],"GL":[null,null,null,null,null,null,null,34800,null,null],"HK":[null,null,null,null,null,null,null,62500,null,null],"IM":[null,null,null,null,null,null,null,87030,null,null],"KH":[null,null,null,null,4.7,null,null,2750,null,null],"KN":[null,null,null,null,null,null,null,24530,null,null],"KW":[null,null,null,null,2.5,null,null,41110,null,null],"LY":[null,null,null,null,18.7,null,null,7250,null,null],"LI":[null,null,null,null,null,null,null,116380,null,null],"MO":[null,null,null,null,null,null,null,69920,null,null],"NC":[null,null,null,null,4.1,null,null,30070,null,null],"NZ":[null,null,null,null,2.5,null,null,46630,null,null],"OM":[null,null,null,null,7.1,null,null,19520,null,null],"PW":[null,null,null,null,null,null,null,19890,null,null],"PR":[null,null,null,null,null,null,null,27320,null,null],"PF":[null,null,null,null,2.6,null,null,24100,null,null],"SA":[null,null,null,null,2.5,null,null,36070,null,null],"SG":[null,null,null,null,null,null,null,81760,null,null],"SM":[null,null,null,null,null,null,null,53910,null,null],"SO":[null,null,null,null,56.5,null,null,640,null,null],"SX":[null,null,null,null,null,null,null,38950,null,null],"TC":[null,null,null,null,null,null,null,36760,null,null],"VC":[null,null,null,null,4,null,null,12000,null,null]};
+
+/* ---- uygulama ---- */
+const DEFAULT_CATS = [['rent','#7cc4ff'],['groceries','#4fd1a1'],['bills','#f2c14e'],['transport','#5ad6e0'],['dining','#ff8f6b'],['health','#f58ac0'],['fun','#b9a3ff'],['other','#93aea6']];
+const LEGACY_PAY = {'Nakit':'cash','Kredi kartı':'card','Banka/EFT':'bank','Diğer':'other'};
+let S, user, userEmail, dataKey, CURR = 'TRY', editId = null;
+const TL = n => n.toLocaleString(LOC(), {style:'currency', currency: CURR});
+const sym = () => (0).toLocaleString(LOC(), {style:'currency', currency: CURR, minimumFractionDigits: 0, maximumFractionDigits: 0}).replace(/[\d.,\s ]/g, '');
+const save = () => lset(dataKey, S);
+const catOf = id => S.cats.find(c => c.id === id) || {name:'?', color:'#999'};
+const inMonth = e => e.date.startsWith($('month').value);
+const sum = a => a.reduce((s, e) => s + e.amount, 0);
+const fmtDate = d => new Date(d + 'T00:00').toLocaleDateString(LOC());
+
+function start(email) {
+  user = users()[email]; userEmail = email; dataKey = 'kese_data_' + email; CURR = user.cur;
+  if (user.lang) { lang = user.lang; lset('kese_lang', lang); }
+  S = lget(dataKey, null) || {cats: DEFAULT_CATS.map(([k, color]) => ({id: uid(), k, name: t('cat_' + k), color, budget: 0})), exp: []};
+  S.exp.forEach(e => e.pay = LEGACY_PAY[e.pay] || e.pay);
+  // eski kayıtlı hazır kategorileri hangi dilde yazılmış olursa olsun anahtara bağla
+  S.cats.forEach(c => { if (!c.k) c.k = DEFAULT_CATS.map(d => d[0]).find(k => T['cat_' + k].includes(c.name)); });
+  $('uname').textContent = user.name;
+  $('avatar').textContent = user.name.split(/\s+/).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+  $('month').value = today().slice(0, 7);
+  document.documentElement.classList.remove('modal-open'); $('auth').hidden = true; $('app').hidden = false; scrollTo(0, 0); document.querySelectorAll('#app .panel').forEach((p, i) => p.style.setProperty('--pi', i)); resetForm(); applyLang();
+}
+
+
+const USR = 1.158; // ABD TÜFE 2024/2021 (2025 henüz yok); PPP ile ABD fiyat düzeyine çevrilen geliri 2021 fiyatlarına indirmek için
+const phi = x => { const t = 1 / (1 + 0.2316419 * Math.abs(x)), p = 0.3989423 * Math.exp(-x * x / 2) * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return x > 0 ? 1 - p : p; };
+const phiInv = p => { let lo = -8, hi = 8; for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; phi(m) < p ? lo = m : hi = m; } return (lo + hi) / 2; };
+const CLS = [['incExtreme', '#ff7b72'], ['incPoor', '#e3b341'], ['incLow', '#58a6ff'], ['cls3', '#7ee787'], ['cls4', '#56d4dd'], ['cls5', '#d2a8ff']];
+// shortcut: log-normal model fitted to the share under $8.30/day and the Gini; real distributions have fatter top tails, so the upper classes are approximate
+function classify(d, income, hh) {
+  const x = income / hh / 30.4 / (d[8] * USR), sigma = Math.SQRT2 * phiInv((d[6] / 100 + 1) / 2);
+  const m = Math.log(8.3) - sigma * phiInv(Math.min(Math.max(d[3], .1), 99.9) / 100);
+  const q = phi((Math.log(x) - m) / sigma) * 100;
+  return {x, q, c: x < 3 ? 0 : x < 4.2 ? 1 : x < 8.3 ? 2 : q < 75 ? 3 : q < 90 ? 4 : 5};
+}
+$('income').onsubmit = ev => {
+  ev.preventDefault(); const all = users();
+  all[userEmail].income = +$('iinc').value; all[userEmail].hh = Math.max(1, +$('ihh').value || 1);
+  lset('kese_users', all); user = all[userEmail]; renderIncome();
+};
+function renderIncome() {
+  const d = INC[user.country], el = $('income'), nf = (n, o) => n.toLocaleString(LOC(), {maximumFractionDigits: 1, ...o});
+  const f = (k, o = {}) => t(k).replace(/\{(\w+)\}/g, (_, n) => o[n]);
+  const title = `<h2>${esc(t('incTitle'))}: ${esc(countryName(user.country))}</h2>`;
+  let h = title;
+  if (!d) { el.innerHTML = h + `<p class="mut">${esc(t('incNone'))}</p>`; return; }
+  const [y, p3, p42, p83, hu, top, gini, gni, ppp, py] = d, local = CUR[user.country];
+  const l = [3, 4.2, 8.3].map(n => nf(n, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+  if (p3 != null && gini != null && top != null && ppp) {
+    if (user.income > 0 && local !== user.cur) h += `<p class="mut">${esc(f('incNoCur', {cur: local}))}</p>`;
+    else if (user.income > 0) {
+      const r = classify(d, user.income, user.hh || 1), [name, color] = CLS[r.c];
+      h += `<div class="clsbox" style="border-color:${color}"><b style="color:${color}">${esc(f('incYou', {c: t(name)}))}</b><ul>${[
+        f('e1', {x: nf(r.x, {maximumFractionDigits: 2})}),
+        f('e2', {pos: f('pos' + Math.min(r.c, 3), {a: l[0], b: l[1], c: l[2]})}),
+        f('e3', {p: nf(p83), c: l[2]}),
+        f('e4', {g: nf(gini), t: nf(top), q: nf(r.q, {maximumFractionDigits: 0})}),
+        f('e5', {c: l[2], m: nf(8.3 * 30.4 * ppp * USR, {maximumFractionDigits: 0}), cur: local})
+      ].map(x => `<li>${esc(x)}</li>`).join('')}</ul><p class="mut">${esc(f('incDisc', {y: py}))}</p></div>`;
+    }
+    h += `<form id="incForm" class="row" style="align-items:end;margin-bottom:14px"><label><span>${esc(t('incIncome'))}</span><input type="number" id="iinc" min="0" step="1" value="${user.income || ''}" required></label><label><span>${esc(t('incHH'))}</span><input type="number" id="ihh" min="1" step="1" value="${user.hh || 1}" required></label><button class="p" style="grid-column:1/-1">${esc(t('incCalc'))}</button></form>`;
+  } else h += `<p class="mut">${esc(t('incNoCls'))}</p>`;
+  if (p3 != null) {
+    const seg = [[p3, '#ff7b72', t('incExtreme'), `< $${l[0]}`], [p42 - p3, '#e3b341', t('incPoor'), `$${l[0]} – ${l[1]}`], [p83 - p42, '#58a6ff', t('incLow'), `$${l[1]} – ${l[2]}`], [100 - p83, '#7ee787', t('incUp'), `> $${l[2]}`]].map(x => [Math.max(x[0], 0), ...x.slice(1)]);
+    h += `<div style="display:flex;height:16px;border-radius:99px;overflow:hidden;gap:2px;margin-bottom:12px">${seg.map(x => `<i style="width:${x[0]}%;background:${x[1]}"></i>`).join('')}</div>
+      <div class="grid g4" style="margin-bottom:14px">${seg.map(x => `<div><i class="dot" style="background:${x[1]}"></i><b>${esc(x[2])}</b><br><span class="mut">${esc(x[3])} · ${nf(x[0])}%</span></div>`).join('')}</div>`;
+  }
+  const m = [[hu, 'incHunger', n => nf(n) + '%'], [top, 'incTop', n => nf(n) + '%'], [gini, 'incGini', nf], [gni, 'incGni', n => nf(n, {style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0})]].filter(x => x[0] != null);
+  if (!m.length && p3 == null) { el.innerHTML = title + `<p class="mut">${esc(t('incNone'))}</p>`; return; }
+  h += `<div class="grid g4">${m.map(x => `<div class="stat"><span>${esc(t(x[1]))}</span><b>${x[2](x[0])}</b></div>`).join('')}</div>`;
+  if (y) h += `<p class="mut" style="margin:12px 0 0">${esc(t('incSrc').replace('{y}', y))}</p>`;
+  el.innerHTML = h;
+}
+
+function render() {
+  renderIncome();
+  const sel = $('cat').value, fsel = $('fcat').value;
+  const opts = S.cats.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  $('cat').innerHTML = opts; if (S.cats.some(c => c.id === sel)) $('cat').value = sel;
+  $('fcat').innerHTML = `<option value="">${esc(t('allCats'))}</option>` + opts; $('fcat').value = fsel;
+
+  const mo = S.exp.filter(inMonth), total = sum(mo);
+  const days = new Date(+$('month').value.slice(0,4), +$('month').value.slice(5), 0).getDate();
+  const top = [...S.cats].map(c => [c, sum(mo.filter(e => e.cat === c.id))]).sort((a, b) => b[1] - a[1])[0];
+  $('stats').innerHTML = [
+    [t('mTotal'), TL(total)], [t('count'), mo.length],
+    [t('daily'), TL(total / days)], [t('topCat'), top && top[1] ? esc(top[0].name) : '—']
+  ].map(([l, v], i) => `<div class="stat"><span>${l}</span><b>${v}</b></div>`).join('');
+
+  $('breakdown').innerHTML = S.cats.map(c => {
+    const tt = sum(mo.filter(e => e.cat === c.id)), pct = total ? tt / total * 100 : 0;
+    const over = c.budget && tt > c.budget;
+    const w = c.budget ? Math.min(tt / c.budget * 100, 100) : pct;
+    return `<div class="item"><div><span><i class="dot" style="background:${c.color}"></i>${esc(c.name)}</span>
+      <span class="amt ${over ? 'over' : ''}">${TL(tt)}${c.budget ? ' / ' + TL(c.budget) : ' · ' + pct.toFixed(0) + '%'}</span>
+      <button class="x" data-delcat="${c.id}">${esc(t('del'))}</button></div>
+      <div class="bar"><i style="width:${w}%;background:${over ? 'var(--bad)' : c.color}"></i></div></div>`;
+  }).join('');
+
+  const [y, m] = $('month').value.split('-').map(Number);
+  const ms = [...Array(6)].map((_, i) => { const d = new Date(y, m - 1 - (5 - i), 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); });
+  const mt = ms.map(k => sum(S.exp.filter(e => e.date.startsWith(k)))), mx = Math.max(...mt, 1);
+  $('months').innerHTML = ms.map((k, i) => `<div class="${i == 5 ? 'now' : ''}" style="--i:${i}" title="${TL(mt[i])}"><i style="height:${mt[i] / mx * 80}px"></i>${k.slice(5)}/${k.slice(2,4)}</div>`).join('');
+
+  const q = $('q').value.toLowerCase(), fc = $('fcat').value;
+  const rows = mo.filter(e => (!fc || e.cat === fc) && (e.desc + e.note).toLowerCase().includes(q)).sort((a, b) => b.date.localeCompare(a.date));
+  $('rows').innerHTML = rows.map(e => { const c = catOf(e.cat); return `<tr>
+    <td>${fmtDate(e.date)}</td><td class="d">${esc(e.desc)}${e.note ? `<br><span class="mut">${esc(e.note)}</span>` : ''}</td>
+    <td><span class="pill" style="--c:${c.color}">${esc(c.name)}</span></td><td>${esc(t('pay_' + e.pay))}</td>
+    <td class="n">${TL(e.amount)}</td>
+    <td class="act"><button data-edit="${e.id}">${esc(t('edit'))}</button><button class="x" data-del="${e.id}">${esc(t('del'))}</button></td></tr>`; }).join('')
+    || `<tr><td colspan="6" class="mut">${esc(t('none'))}</td></tr>`;
+  const sig = rows.map(e => e.id).join(); $('rows').classList.toggle('anim', sig !== renderSig); renderSig = sig;
+  $('rows').querySelectorAll('tr').forEach((tr, i) => tr.style.setProperty('--i', i));
+  renderViz(mo, total, days);
+}
+
+$('form').onsubmit = ev => {
+  ev.preventDefault();
+  const e = {id: editId || uid(), date: $('date').value, amount: Math.round(parseFloat($('amount').value) * 100) / 100,
+    desc: $('desc').value.trim(), cat: $('cat').value, pay: $('pay').value, note: $('note').value.trim()};
+  if (!(e.amount > 0)) return;
+  S.exp = editId ? S.exp.map(x => x.id === editId ? e : x) : [...S.exp, e];
+  save(); toast(t(editId ? 'updated' : 'saved')); resetForm(); $('month').value = e.date.slice(0, 7); render();
+};
+function resetForm() {
+  editId = null; $('form').reset(); $('date').value = today();
+  $('formTitle').textContent = t('addExp'); $('cancel').hidden = true;
+}
+$('cancel').onclick = resetForm;
+
+$('catForm').onsubmit = ev => {
+  ev.preventDefault();
+  const name = $('cname').value.trim();
+  if (S.cats.some(c => c.name.toLowerCase() === name.toLowerCase())) return alert(t('catExists'));
+  S.cats.push({id: uid(), name, color: $('ccolor').value, budget: +$('cbudget').value || 0});
+  save(); $('catForm').reset(); $('ccolor').value = '#ff8f6b'; render();
+};
+
+document.body.onclick = ev => {
+  const d = ev.target.dataset || {};
+  if (d.del && confirm(t('confDelExp'))) { S.exp = S.exp.filter(e => e.id !== d.del); save(); render(); toast(t('deleted')); }
+  if (d.edit) {
+    const e = S.exp.find(x => x.id === d.edit); editId = e.id;
+    ['date','amount','desc','cat','pay','note'].forEach(k => $(k).value = e[k]);
+    $('formTitle').textContent = t('editExp'); $('cancel').hidden = false; $('form').scrollIntoView({behavior:'smooth'});
+  }
+  if (d.delcat) {
+    if (S.exp.some(e => e.cat === d.delcat)) return alert(t('catHasExp'));
+    if (confirm(t('confDelCat'))) { S.cats = S.cats.filter(c => c.id !== d.delcat); save(); render(); }
+  }
+};
+
+$('csv').onclick = () => {
+  const q = v => '"' + String(v).replace(/"/g, '""') + '"', dec = n => lang === 'en' ? String(n) : String(n).replace('.', ',');
+  const lines = [['date','desc','category','payShort','amount','note'].map(k => q(t(k))).join(';')]
+    .concat(S.exp.filter(inMonth).sort((a, b) => a.date.localeCompare(b.date))
+      .map(e => [e.date, e.desc, catOf(e.cat).name, t('pay_' + e.pay), dec(e.amount), e.note].map(q).join(';')));
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], {type:'text/csv;charset=utf-8'}));
+  a.download = `kese-${$('month').value}.csv`; a.click(); URL.revokeObjectURL(a.href);
+};
+
+['month','q','fcat'].forEach(id => $(id).oninput = () => S && render());
+
+/* ---- açılış sayfası v2: hareketli ---- */
+document.documentElement.classList.add('js');
+const REDUCE = matchMedia('(prefers-reduced-motion:reduce)').matches;
+const fmtT = (k, o = {}) => t(k).replace(/\{(\w+)\}/g, (_, n) => o[n]);
+const nfx = (n, o) => n.toLocaleString(LOC(), {maximumFractionDigits: 1, ...o});
+const rafTween = (from, to, ms, set, done) => {
+  if (REDUCE || from === to) { set(to); done && done(); return; }
+  const t0 = performance.now();
+  const tick = now => { const k = Math.min((now - t0) / ms, 1); set(from + (to - from) * (1 - Math.pow(1 - k, 3))); k < 1 ? requestAnimationFrame(tick) : done && done(); };
+  requestAnimationFrame(tick);
+};
+
+/* giriş penceresi */
+const modal = $('authModal');
+function openAuth(reg) {
+  showTab(reg); modal.hidden = false; document.documentElement.classList.add('modal-open');
+  setTimeout(() => $(reg ? 'rname' : 'lemail').focus(), 60);
+}
+function closeAuth() { modal.hidden = true; document.documentElement.classList.remove('modal-open'); }
+document.querySelectorAll('[data-open]').forEach(b => b.onclick = () => openAuth(b.dataset.open === 'reg'));
+modal.addEventListener('click', e => { if (e.target.closest('[data-close]')) closeAuth(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeAuth(); });
+
+/* kayan şeritler */
+document.querySelectorAll('.marquee .track').forEach(tr => tr.innerHTML += tr.innerHTML);
+
+/* görünürlük animasyonları ve sayaçlar */
+{
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    e.target.classList.add('in'); io.unobserve(e.target);
+    e.target.querySelectorAll('[data-count]').forEach(b => rafTween(0, +b.dataset.count, 1400, n => b.textContent = Math.round(n)));
+  }), {threshold: .15}) : null;
+  document.querySelectorAll('.rv').forEach(el => io ? io.observe(el) : (el.classList.add('in'), el.querySelectorAll('[data-count]').forEach(b => b.textContent = b.dataset.count)));
+}
+
+/* başlık: kelime kelime yükselir */
+function splitHero() {
+  const el = $('heroSplit'), plain = el.textContent; let i = 0; const out = [];
+  el.childNodes.forEach(n => {
+    const em = n.nodeType === 1 && n.tagName === 'EM';
+    n.textContent.split(/\s+/).filter(Boolean).forEach(w => out.push(`<span class="w${em ? ' em' : ''}"><span style="--i:${i++}">${esc(w)}</span></span>`));
+  });
+  el.innerHTML = out.join(' '); el.setAttribute('aria-label', plain);
+}
+
+/* daktilo */
+let typedRun = 0;
+function restartTyped() {
+  const el = $('typed'), id = ++typedRun, words = ['cat_rent', 'cat_groceries', 'cat_bills', 'cat_transport', 'cat_dining'].map(t);
+  if (REDUCE) { el.textContent = words[0]; return; }
+  let w = 0, c = 0, del = false;
+  const step = () => {
+    if (id !== typedRun) return;
+    const word = words[w];
+    el.textContent = word.slice(0, c);
+    if (!del && c === word.length) { del = true; return setTimeout(step, 1400); }
+    if (del && c === 0) { del = false; w = (w + 1) % words.length; return setTimeout(step, 300); }
+    c += del ? -1 : 1; setTimeout(step, del ? 45 : 90);
+  };
+  step();
+}
+
+/* arka plan: sürüklenen noktalar */
+{
+  const cv = $('bg'), cx = cv.getContext('2d'); let W, H, pts = [];
+  const mouse = {x: -999, y: -999};
+  const size = () => {
+    const d = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight;
+    cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+    pts = Array.from({length: Math.round(Math.min(90, W * H / 22000))}, () => ({x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35, r: 1.2 + Math.random() * 2}));
+  };
+  const draw = () => {
+    cx.clearRect(0, 0, W, H);
+    for (const p of pts) {
+      if (!REDUCE) {
+        const dx = p.x - mouse.x, dy = p.y - mouse.y, d2 = dx * dx + dy * dy;
+        if (d2 < 14000) { const f = (1 - d2 / 14000) * .9; p.x += dx / Math.sqrt(d2 || 1) * f; p.y += dy / Math.sqrt(d2 || 1) * f; }
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1;
+      }
+      cx.beginPath(); cx.arc(p.x, p.y, p.r, 0, 7); cx.fillStyle = 'rgba(255,143,107,.55)'; cx.fill();
+    }
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const a = pts[i], b = pts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < 120) { cx.strokeStyle = `rgba(230,242,238,${.1 * (1 - d / 120)})`; cx.lineWidth = 1; cx.beginPath(); cx.moveTo(a.x, a.y); cx.lineTo(b.x, b.y); cx.stroke(); }
+    }
+  };
+  const loop = () => { if ($('auth').hidden) return; draw(); requestAnimationFrame(loop); };
+  size(); addEventListener('resize', () => { size(); if (REDUCE) draw(); });
+  addEventListener('pointermove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  REDUCE ? draw() : loop();
+}
+
+/* telefon eğilmesi, yüzen kartlar, manyetik düğmeler */
+if (!REDUCE && matchMedia('(pointer:fine)').matches) {
+  const stage = $('stage'), wrap = $('phoneWrap');
+  stage.parentElement.addEventListener('pointermove', e => {
+    const r = stage.getBoundingClientRect(), nx = (e.clientX - r.left) / r.width - .5, ny = (e.clientY - r.top) / r.height - .5;
+    wrap.style.setProperty('--ry', (nx * 16).toFixed(1) + 'deg'); wrap.style.setProperty('--rx', (-ny * 12).toFixed(1) + 'deg');
+    stage.querySelectorAll('.fcard').forEach(c => { const d = +c.dataset.depth; c.style.setProperty('--px', (nx * d).toFixed(1) + 'px'); c.style.setProperty('--py', (ny * d).toFixed(1) + 'px'); });
+  });
+  stage.parentElement.addEventListener('pointerleave', () => { wrap.style.setProperty('--ry', '0deg'); wrap.style.setProperty('--rx', '0deg'); });
+  document.querySelectorAll('.mag').forEach(b => {
+    b.addEventListener('pointermove', e => { const r = b.getBoundingClientRect(); b.style.transform = `translate(${((e.clientX - r.left - r.width / 2) * .22).toFixed(1)}px,${((e.clientY - r.top - r.height / 2) * .32).toFixed(1)}px)`; });
+    b.addEventListener('pointerleave', () => b.style.transform = '');
+  });
+}
+
+/* telefon: canlı demo (örnek veri) */
+{
+  const COL = {rent: '#7cc4ff', groceries: '#4fd1a1', bills: '#f2c14e', transport: '#5ad6e0', dining: '#ff8f6b'};
+  const NEXT = [['groceries', 250], ['dining', 420], ['transport', 85], ['bills', 640], ['groceries', 310], ['dining', 180], ['transport', 120], ['bills', 95]];
+  const money = n => n.toLocaleString(LOC(), {style: 'currency', currency: 'TRY'});
+  const seg = $('demoSeg'), list = $('demoList'), total = $('mockTotal'), fc = $('fcNew');
+  let sum, rows, step, shown = 0;
+  const rowHtml = ([k, a]) => `<li><span class="dotc" style="--c:${COL[k]}"></span><span>${esc(t('cat_' + k))}</span><b>${money(a)}</b></li>`;
+  const setSeg = () => { seg.querySelectorAll('i').forEach(i => i.style.setProperty('--f', sum[i.dataset.k] || .0001)); };
+  const setTotal = () => { const to = Object.values(sum).reduce((a, b) => a + b, 0); rafTween(shown, to, 700, n => total.textContent = money(n), () => shown = to); };
+  seg.innerHTML = Object.keys(COL).map(k => `<i data-k="${k}" style="--c:${COL[k]}"></i>`).join('');
+  const reset = () => {
+    sum = {rent: 15000, groceries: 4650.5, bills: 820, transport: 0, dining: 0}; step = 0;
+    rows = [['bills', 820], ['groceries', 4650.5], ['rent', 15000]];
+    list.innerHTML = rows.map(rowHtml).join('');
+  };
+  window.demoRefresh = () => { list.innerHTML = rows.map(rowHtml).join(''); total.textContent = money(shown); };
+  reset();
+  setTimeout(() => { setSeg(); setTotal(); }, 700);
+  if (!REDUCE) setInterval(() => {
+    if ($('auth').hidden || document.hidden) return;
+    if (step >= NEXT.length) { reset(); setSeg(); setTotal(); return; }
+    const [k, a] = NEXT[step++]; sum[k] += a; rows.unshift([k, a]); rows.length = 3;
+    const last = list.lastElementChild; if (last) { last.classList.add('out'); setTimeout(() => last.remove(), 380); }
+    list.insertAdjacentHTML('afterbegin', rowHtml([k, a]));
+    setSeg(); setTotal();
+    fc.textContent = `${t('cat_' + k)} · ${money(a)}`;
+    const card = fc.parentElement; card.classList.remove('pop'); void card.offsetWidth; card.classList.add('pop');
+  }, 2800);
+  else { setSeg(); total.textContent = money(20470.5); shown = 20470.5; }
+}
+
+/* selamlaşma döngüsü */
+{
+  const hi = ['Merhaba', 'Hello', 'Hallo', 'Bonjour', 'Hola', 'Привет']; let i = 0;
+  if (!REDUCE) setInterval(() => {
+    if ($('auth').hidden) return;
+    const el = $('hello1'), n = el.cloneNode(); n.id = 'hello1'; n.textContent = hi[++i % hi.length]; el.replaceWith(n);
+  }, 1800);
+}
+
+/* kendin dene: ülkene göre sınıf */
+function classX(d, x) {
+  const sigma = Math.SQRT2 * phiInv((d[6] / 100 + 1) / 2), m = Math.log(8.3) - sigma * phiInv(Math.min(Math.max(d[3], .1), 99.9) / 100);
+  const q = phi((Math.log(x) - m) / sigma) * 100;
+  return {q, c: x < 3 ? 0 : x < 4.2 ? 1 : x < 8.3 ? 2 : q < 75 ? 3 : q < 90 ? 4 : 5};
+}
+function tryInit() {
+  const sel = $('tryCountry'), keep = sel.value || 'TR';
+  const codes = Object.keys(INC).filter(c => INC[c][1] != null && INC[c][6] != null && INC[c][8]).sort((a, b) => countryName(a).localeCompare(countryName(b), lang));
+  sel.innerHTML = codes.map(c => `<option value="${c}">${esc(countryName(c))}</option>`).join('');
+  sel.value = codes.includes(keep) ? keep : codes[0]; tryRender();
+}
+function tryRender() {
+  const c = $('tryCountry').value, d = INC[c]; if (!d) return;
+  const x = .5 * Math.pow(400, +$('trySlider').value / 100), [, p3, p42, p83, , top, gini, , ppp] = d, r = classX(d, x);
+  const seg = [[p3, '#ff7b72'], [p42 - p3, '#e3b341'], [p83 - p42, '#58a6ff'], [100 - p83, '#7ee787']];
+  const bands = $('tryBands'), mk = $('tryMarker');
+  if (!bands.querySelector('i')) seg.forEach(() => bands.insertBefore(document.createElement('i'), mk));
+  bands.querySelectorAll(':scope>i').forEach((el, i) => { el.style.setProperty('--w', Math.max(seg[i][0], 0.8)); el.style.setProperty('--c', seg[i][1]); });
+  const pos = x < 3 ? p3 * x / 3 : x < 4.2 ? p3 + (p42 - p3) * (x - 3) / 1.2 : x < 8.3 ? p42 + (p83 - p42) * (x - 4.2) / 4.1 : Math.max(r.q, p83);
+  mk.style.left = Math.min(Math.max(pos, 0), 99.5) + '%';
+  $('tryX').textContent = '$' + nfx(x, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const [name, color] = CLS[r.c], monthly = nfx(x * 30.4 * ppp * USR, {maximumFractionDigits: 0}) + ' ' + (CUR[c] || '');
+  $('tryOut').innerHTML = `<b class="cls"><i class="dot" style="background:${color}"></i>${esc(t(name))}</b>
+    <p>${esc(t('tryMonthly'))}: <b>${esc(monthly)}</b></p>
+    <p>${esc(fmtT('e4', {g: nfx(gini), t: nfx(top), q: nfx(Math.min(r.q, 99.9), {maximumFractionDigits: 0})}))}</p>`;
+}
+$('tryCountry').onchange = tryRender; $('trySlider').oninput = tryRender;
+
+/* kaydırma: ilerleme çubuğu, çubuk küçülmesi, sabitlenen adımlar */
+{
+  const pin = $('nasil'); let ticking = false;
+  const update = () => {
+    ticking = false;
+    const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
+    $('sp').style.width = (max > 0 ? y / max * 100 : 0) + '%';
+    $('nav').classList.toggle('small', y > 60);
+    const r = pin.getBoundingClientRect(), total = pin.offsetHeight - innerHeight * .7;
+    const p = Math.min(1, Math.max(0, (-r.top + 90) / total)), idx = Math.min(2, Math.floor(p * 3));
+    pin.querySelectorAll('.pstep').forEach((s, i) => { s.classList.toggle('on', i === idx); s.classList.toggle('past', i < idx); });
+    $('pinBar').style.width = (p * 100) + '%';
+  };
+  addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, {passive: true});
+  addEventListener('resize', update); update();
+}
+
+function onLang() {
+  splitHero(); restartTyped(); tryInit();
+  $('curCount').dataset.count = $('rcur').options.length || 160;
+  if (window.demoRefresh) demoRefresh();
+}
+
+/* ---- uygulama ekranı: halka grafik, gün ısı haritası, sayaç animasyonu ---- */
+let lastStat = [0, 0, 0], renderSig = '';
+function renderViz(mo, total, days) {
+  const bs = document.querySelectorAll('#stats .stat b');
+  [total, mo.length, total / days].forEach((v, i) => { const b = bs[i]; if (!b) return; const f = i === 1 ? n => String(Math.round(n)) : TL; rafTween(lastStat[i], v, 800, n => b.textContent = f(n)); lastStat[i] = v; });
+  const parts = S.cats.map(c => [c, sum(mo.filter(e => e.cat === c.id))]).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]);
+  let cum = 0;
+  $('donut').innerHTML = `<g transform="rotate(-90 60 60)"><circle cx="60" cy="60" r="44" fill="none" stroke="var(--raised)" stroke-width="15"/>${parts.map(([c, v]) => { const l = v / total * 100, o = -cum; cum += l; return `<circle class="sg" cx="60" cy="60" r="44" pathLength="100" stroke="${c.color}" data-l="${Math.max(l - .8, .2)}" data-o="${o}"/>`; }).join('')}</g><text class="k" x="60" y="54">${esc(t('mTotal')).toUpperCase()}</text><text x="60" y="70">${total ? esc(TL(total)) : '—'}</text>`;
+  requestAnimationFrame(() => requestAnimationFrame(() => $('donut').querySelectorAll('circle.sg').forEach(c => { c.style.strokeDasharray = c.dataset.l + ' 100'; c.style.strokeDashoffset = c.dataset.o; })));
+  $('donutLegend').innerHTML = parts.map(([c, v]) => `<li><span><i class="dot" style="background:${c.color}"></i>${esc(c.name)}</span><b class="amt">${(v / total * 100).toFixed(0)}%</b></li>`).join('') || `<li class="mut">${esc(t('none'))}</li>`;
+  const [y, m] = $('month').value.split('-').map(Number), dim = new Date(y, m, 0).getDate(), off = (new Date(y, m - 1, 1).getDay() + 6) % 7;
+  const per = Array.from({length: dim}, (_, i) => sum(mo.filter(e => e.date === `${$('month').value}-${String(i + 1).padStart(2, '0')}`))), mx = Math.max(...per, 1);
+  $('heat').innerHTML = '<i class="e"></i>'.repeat(off) + per.map((v, i) => { const day = `${$('month').value}-${String(i + 1).padStart(2, '0')}`; return `<i class="${v ? 'v' : ''}" data-day="${day}" role="button" tabindex="0" style="--i:${i};--p:${Math.round(28 + 62 * v / mx)}%" title="${esc(TL(v))}" aria-label="${esc(fmtDate(day))}: ${esc(TL(v))}">${i + 1}</i>`; }).join('');
+  showDay();
+}
+/* takvimde bir güne basınca o günün giderleri */
+let selDay = '';
+function showDay() {
+  const box = $('dayDetail'), month = $('month').value;
+  document.querySelectorAll('#heat i[data-day]').forEach(i => i.classList.toggle('sel', i.dataset.day === selDay));
+  if (!selDay || !selDay.startsWith(month)) { box.innerHTML = `<p class="mut">${esc(t('dayHint'))}</p>`; return; }
+  const es = S.exp.filter(e => e.date === selDay);
+  box.innerHTML = `<div class="dayhead"><b>${esc(fmtDate(selDay))}</b><b class="amt">${TL(sum(es))}</b></div>` + (es.length
+    ? es.map(e => { const c = catOf(e.cat); return `<div class="dayrow"><span class="pill" style="--c:${c.color}">${esc(c.name)}</span><span class="dd">${esc(e.desc)}</span><b class="amt">${TL(e.amount)}</b></div>`; }).join('')
+    : `<p class="mut">${esc(t('dayNone'))}</p>`);
+}
+const pickDay = ev => { const c = ev.target.closest('[data-day]'); if (!c) return; selDay = c.dataset.day; showDay(); };
+$('heat').addEventListener('click', pickDay);
+$('heat').addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); pickDay(ev); } });
+
+applyLang();
+const sess = lget('kese_session', null);
+if (sess && users()[sess]) start(sess); else $('auth').hidden = false;
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+# yerel araç dosyaları ve eski yedekler
+.impeccable/
+yedek/
+index-hareketli.html
+
+# işletim sistemi / editör
+.DS_Store
+Thumbs.db
+*.log
